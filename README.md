@@ -160,8 +160,8 @@ dxcom-gui --dxcom-path /path/to/dxcom
 ## Troubleshooting
 
 **DXCom Compiler Not Found**
-- Ensure DXCom is installed
-- Set `DXCOM_PATH` or use `--dxcom-path`
+- Ensure DXCom is installed and on your system PATH
+- Or use `--dxcom-path /path/to/dxcom` to specify the executable directly
 
 **Compilation Fails**
 - Verify the ONNX model is valid
