@@ -120,8 +120,11 @@ chmod +x ~/bin/dxcom-gui
 
 # Add ~/bin to PATH if not already there
 if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+    # ~/.profile is sourced by graphical sessions (desktop launchers)
+    echo 'export PATH="$HOME/bin:$PATH"' >> ~/.profile
+    # ~/.bashrc is sourced by interactive terminals
     echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
-    echo "Note: Please restart your terminal or run: source ~/.bashrc"
+    echo "Note: Please log out and back in, or run: source ~/.profile"
 fi
 
 echo "✓ Launcher symlink created"

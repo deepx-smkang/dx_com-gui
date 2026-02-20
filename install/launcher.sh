@@ -6,6 +6,12 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APP_DIR="$SCRIPT_DIR/.."
 
+# Source login profile so PATH and env vars set in ~/.profile are available
+# when launched from the desktop (desktop launchers don't source ~/.bashrc)
+if [ -f "$HOME/.profile" ]; then
+    source "$HOME/.profile"
+fi
+
 # Activate virtual environment if it exists
 if [ -f "$APP_DIR/.venv/bin/activate" ]; then
     source "$APP_DIR/.venv/bin/activate"
