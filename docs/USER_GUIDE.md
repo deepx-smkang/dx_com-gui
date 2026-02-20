@@ -1,6 +1,6 @@
-# User Guide
+# 📖 User Guide
 
-## Launching the Application
+## 🚀 Launching the Application
 
 ```bash
 # If installed via pip
@@ -21,15 +21,15 @@ python main.py
 
 ---
 
-## Main Window Layout
+## 🖼️ Main Window Layout
 
 The window has two fixed sections at the top and a scrollable configuration area below.
 
-### Fixed Header
+### 📌 Fixed Header
 - **Execution Mode**: `[ Python ]  [ CLI ]` — selects whether to invoke dxcom via its Python API or CLI
 - **Data Source** *(Python mode only)*: `[ Config File ]  [ PyTorch DataLoader ]` — selects how calibration data is provided
 
-### Scrollable Configuration
+### 🔽 Scrollable Configuration
 
 Three group boxes stacked vertically:
 
@@ -52,7 +52,7 @@ Three group boxes stacked vertically:
 - File Extensions
 - *Preprocessing:* Convert Color, Resize, Center Crop, Transpose, Expand Dim, Normalize, Mul, Add, Subtract, Div
 
-### Bottom Area
+### ⬇️ Bottom Area
 - **Compile Model** / **Cancel** buttons
 - **Generate Python Script** button — produces a standalone `.py` compilation script
 - Status bar
@@ -60,23 +60,23 @@ Three group boxes stacked vertically:
 
 ---
 
-## Basic Workflow
+## 🔄 Basic Workflow
 
-### CLI Mode
+### 💻 CLI Mode
 
 1. Select **CLI** mode.
 2. Set **Input ONNX Model** and **Output Directory**.
 3. Optionally select a **Config File**.
 4. Click **Compile Model**.
 
-### Python Mode (Config File)
+### 🐍 Python Mode (Config File)
 
 1. Select **Python** mode and **Config File** data source.
 2. Set **Input ONNX Model** and **Output Directory**.
 3. Set **Config File**, **Optimization Level**, **Calibration Method/Samples**, **Quantization Device** as needed.
 4. Click **Compile Model**.
 
-### Python Mode (PyTorch DataLoader)
+### 🐍 Python Mode (PyTorch DataLoader)
 
 1. Select **Python** mode and **PyTorch DataLoader** data source.
 2. Set **Input ONNX Model** and **Output Directory**.
@@ -85,19 +85,19 @@ Three group boxes stacked vertically:
 
 ---
 
-## JSON Config Editor
+## 📝 JSON Config Editor
 
 Click **Edit** next to the Config File field to open the built-in editor. The editor lets you view and modify the JSON config directly before compilation.
 
 ---
 
-## Python Script Generator
+## 🐍 Python Script Generator
 
 Click **Generate Python Script** to produce a standalone `.py` file that replicates the current configuration. The generated script can be run independently without the GUI.
 
 ---
 
-## Settings
+## ⚙️ Settings
 
 Open via **Edit → Settings** or `Ctrl+,`.
 
@@ -117,7 +117,7 @@ Settings are saved to `~/.dxcom_gui/settings.json`.
 
 ---
 
-## Keyboard Shortcuts
+## ⌨️ Keyboard Shortcuts
 
 | Shortcut | Action |
 |---|---|
@@ -131,17 +131,17 @@ Settings are saved to `~/.dxcom_gui/settings.json`.
 
 ---
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
-**DXCom not found**
+**🔴 DXCom not found**
 - Ensure `dxcom` is on your system PATH: `which dxcom`
 - Or launch with: `dxcom-gui --dxcom-path /path/to/dxcom`
 
-**Compilation fails**
+**🔴 Compilation fails**
 - Check the output log for the specific error message
 - Verify the ONNX model is valid
 - Try adjusting the optimization level or config file
 
-**GUI doesn't launch**
+**🔴 GUI doesn't launch**
 - Check PySide6 is installed: `pip list | grep PySide6`
 - For X11 issues: `export QT_QPA_PLATFORM=xcb`

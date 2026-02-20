@@ -1,13 +1,13 @@
-# Installation Guide
+# 🚀 Installation Guide
 
-## Prerequisites
+## 📋 Prerequisites
 
-### System Requirements
+### 🖥️ System Requirements
 - **OS**: Linux (Ubuntu 18.04+)
 - **Python**: 3.8 or higher
 - **Display**: X11 or Wayland
 
-### System Libraries (Ubuntu/Debian)
+### 📦 System Libraries (Ubuntu/Debian)
 
 ```bash
 sudo apt install -y \
@@ -24,7 +24,7 @@ sudo apt install -y \
     libfontconfig1
 ```
 
-### DXCom Compiler
+### 🔧 DXCom Compiler
 
 The DXCom compiler must be installed separately and available on your system `PATH`:
 
@@ -38,9 +38,9 @@ To use a compiler at a non-standard path, pass `--dxcom-path` at launch (see Usa
 
 ---
 
-## Installation
+## 📥 Installation
 
-### Method 1: pip install (Recommended)
+### ✅ Method 1: pip install (Recommended)
 
 ```bash
 git clone https://github.com/DEEPX-AI/dx_com-gui.git
@@ -55,7 +55,7 @@ pip install .
 dxcom-gui
 ```
 
-### Method 2: Run Without Installing
+### ▶️ Method 2: Run Without Installing
 
 ```bash
 cd dx_com-gui
@@ -65,7 +65,7 @@ python main.py
 
 ---
 
-## Verification
+## 🧪 Verification
 
 ```bash
 # Check PySide6
@@ -79,22 +79,22 @@ python -m pytest tests/ -v
 
 ---
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
-**Qt platform plugin error**
+**🔴 Qt platform plugin error**
 ```bash
 sudo apt install libxcb-xinerama0 libxcb-cursor0
 # or
 export QT_QPA_PLATFORM=xcb
 ```
 
-**PySide6 installation fails**
+**🔴 PySide6 installation fails**
 ```bash
 sudo apt install python3-dev build-essential
 pip install PySide6
 ```
 
-**Python version too old**
+**🔴 Python version too old**
 ```bash
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt update
@@ -103,7 +103,7 @@ sudo apt install python3.10 python3.10-venv
 
 ---
 
-## Uninstallation
+## 🗑️ Uninstallation
 
 ```bash
 pip uninstall dxcom-gui
