@@ -1,30 +1,30 @@
-# DXCom GUI - ONNX to DXNN Model Compiler
+# 🧠 DXCom GUI - ONNX to DXNN Model Compiler
 
 A desktop application for compiling ONNX models to DXNN format using the DXCom compiler.  
 Built with PySide6 (Qt for Python), it provides an intuitive interface for deep neural network model conversion.
 
-## Features
+## ✨ Features
 
-- **Two Execution Modes**: Switch between CLI and Python API compilation modes
-- **Data Source Selection**: Choose between Config File or PyTorch DataLoader (Python mode)
-- **Default Loader Configuration**: Configure a full image preprocessing pipeline (color conversion, resize, center crop, transpose, expand dim, normalize, mul/add/subtract/div)
-- **JSON Config Editor**: Built-in editor for viewing and editing compiler config files
-- **Python Script Generator**: Generate standalone Python compilation scripts
-- **Real-time Output Logs**: Live compilation progress with scrollable output
-- **Intelligent Error Handling**: Detailed error messages with actionable fix suggestions
-- **Automatic DXCom Detection**: Finds the DXCom compiler from the system PATH
-- **Environment Validation**: Pre-flight checks before compilation
-- **Theme Support**: Light and dark UI modes
-- **Settings Persistence**: Configurable default paths and preferences
+- 🔀 **Two Execution Modes**: Switch between CLI and Python API compilation modes
+- 📂 **Data Source Selection**: Choose between Config File or PyTorch DataLoader (Python mode)
+- ⚙️ **Default Loader Configuration**: Configure a full image preprocessing pipeline (color conversion, resize, center crop, transpose, expand dim, normalize, mul/add/subtract/div)
+- 📝 **JSON Config Editor**: Built-in editor for viewing and editing compiler config files
+- 🐍 **Python Script Generator**: Generate standalone Python compilation scripts
+- 📡 **Real-time Output Logs**: Live compilation progress with scrollable output
+- 🛡️ **Intelligent Error Handling**: Detailed error messages with actionable fix suggestions
+- 🔍 **Automatic DXCom Detection**: Finds the DXCom compiler from the system PATH
+- ✅ **Environment Validation**: Pre-flight checks before compilation
+- 🎨 **Theme Support**: Light and dark UI modes
+- 💾 **Settings Persistence**: Configurable default paths and preferences
 
-## Requirements
+## 📋 Requirements
 
-### System Requirements
+### 🖥️ System Requirements
 - **Operating System**: Linux (Ubuntu 18.04+)
 - **Python**: 3.8 or higher
 - **Display**: X11 or Wayland display server
 
-### Dependencies
+### 📦 Dependencies
 - **PySide6** ≥ 6.4.0 (Qt for Python)
 - **DXCom Compiler**: The ONNX to DXNN compiler (installed separately)
 
@@ -48,9 +48,9 @@ Built with PySide6 (Qt for Python), it provides an intuitive interface for deep 
   > dxcom-gui --dxcom-path /path/to/dx-compiler/venv-dx-compiler-local/bin/dxcom
   > ```
 
-## Installation
+## 🚀 Installation
 
-### Install from Source
+### 📥 Install from Source
 
 ```bash
 # Clone the repository
@@ -68,7 +68,7 @@ pip install .
 dxcom-gui
 ```
 
-### Run Without Installing
+### ▶️ Run Without Installing
 
 ```bash
 cd dx_com-gui
@@ -76,9 +76,9 @@ pip install PySide6
 python main.py
 ```
 
-## Usage
+## 🖱️ Usage
 
-### Basic Workflow
+### 🔄 Basic Workflow
 
 1. **Launch the application**
    ```bash
@@ -111,7 +111,7 @@ python main.py
 
 7. **Generate Script** (optional) — click `Generate Python Script` to produce a standalone `.py` file.
 
-### Command Line Options
+### 💻 Command Line Options
 
 ```
 dxcom-gui [OPTIONS]
@@ -132,9 +132,9 @@ dxcom-gui --input model.onnx
 dxcom-gui --theme dark --dxcom-path /path/to/venv/bin/dxcom
 ```
 
-## Configuration
+## ⚙️ Configuration
 
-### Application Settings
+### 🗂️ Application Settings
 
 Settings are stored in `~/.dxcom_gui/settings.json`:
 
@@ -153,7 +153,7 @@ Settings are stored in `~/.dxcom_gui/settings.json`:
 }
 ```
 
-### Default Paths
+### 📁 Default Paths
 
 Open **Settings** from the menu to configure default browse directories:
 
@@ -164,7 +164,7 @@ Open **Settings** from the menu to configure default browse directories:
 | Default JSON Path | Pre-fills the config file browser |
 | Default Dataset Path | Pre-fills the dataset directory browser |
 
-### DXCom Compiler Detection
+### 🔎 DXCom Compiler Detection
 
 The application finds `dxcom` from the **system PATH**. Make sure `dxcom` is on your PATH before launching.
 
@@ -173,9 +173,9 @@ To override with a specific executable:
 dxcom-gui --dxcom-path /path/to/dxcom
 ```
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
-**DXCom Compiler Not Found**
+**🔴 DXCom Compiler Not Found**
 - Ensure DXCom is installed and on your system PATH: `which dxcom`
 - If DXCom was installed via `dx-compiler/install.sh`, activate its virtual environment first:
   ```bash
@@ -188,20 +188,20 @@ dxcom-gui --dxcom-path /path/to/dxcom
   dxcom-gui --dxcom-path /path/to/dx-compiler/venv-dx-compiler-local/bin/dxcom
   ```
 
-**Compilation Fails**
+**🔴 Compilation Fails**
 - Verify the ONNX model is valid
 - Review the output log for specific error messages
 - Try a different optimization level or config file
 
-**GUI Doesn't Launch**
+**🔴 GUI Doesn't Launch**
 - Check PySide6 is installed: `pip list | grep PySide6`
 - For X11 issues: `export QT_QPA_PLATFORM=xcb`
 
-**Getting Help**
+**📚 Getting Help**
 - [docs/INSTALLATION.md](docs/INSTALLATION.md) — full installation and troubleshooting guide
 - [docs/USER_GUIDE.md](docs/USER_GUIDE.md) — detailed usage instructions
 
-## Project Structure
+## 🗂️ Project Structure
 
 ```
 dx_com-gui/
@@ -244,9 +244,9 @@ dx_com-gui/
 │   └── USER_GUIDE.md
 ```
 
-## Development
+## 🛠️ Development
 
-### Running Tests
+### 🧪 Running Tests
 
 ```bash
 # Run all tests
@@ -259,7 +259,7 @@ python -m pytest --cov=src tests/
 python -m pytest tests/test_settings_manager.py -v
 ```
 
-### Building the Package
+### 📦 Building the Package
 
 ```bash
 pip install -r tests/requirements.txt
