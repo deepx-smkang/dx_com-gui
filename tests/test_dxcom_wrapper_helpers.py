@@ -9,9 +9,10 @@ from unittest.mock import patch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# Qt requires an application instance before creating QThread subclasses
-from PySide6.QtCore import QCoreApplication
-_app = QCoreApplication.instance() or QCoreApplication(sys.argv)
+# Qt requires an application instance before creating QThread subclasses.
+# Use QApplication (not QCoreApplication) so pytest-qt can reuse the instance.
+from PySide6.QtWidgets import QApplication
+_app = QApplication.instance() or QApplication(sys.argv)
 
 from src.dxcom_wrapper import (
     DXComExecutor,
