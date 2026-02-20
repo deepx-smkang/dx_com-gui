@@ -6,7 +6,6 @@ include LICENSE
 include CHANGELOG.md
 
 # Installation files
-recursive-include install *.sh *.desktop
 
 # Documentation
 recursive-include docs *.md *.txt
@@ -20,7 +19,7 @@ recursive-include tests *.py
 
 # Configuration
 include requirements.txt
-include requirements-dev.txt
+include tests/requirements.txt
 include pyproject.toml
 
 # Exclude build artifacts
