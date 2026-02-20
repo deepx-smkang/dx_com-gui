@@ -42,7 +42,7 @@ sudo apt update
 sudo apt install -y \
     python3-venv \
     python3-pip \
-    libgl1-mesa-glx \
+    libgl1 \
     libxkbcommon-x11-0 \
     libxcb-icccm4 \
     libxcb-image0 \
