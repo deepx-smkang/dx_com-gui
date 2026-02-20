@@ -11,7 +11,7 @@ A desktop application for compiling ONNX models to DXNN format using the DXCom c
 - **Python Script Generator**: Generate standalone Python compilation scripts
 - **Real-time Output Logs**: Live compilation progress with scrollable output
 - **Intelligent Error Handling**: Detailed error messages with actionable fix suggestions
-- **Automatic DXCom Detection**: Smart detection of DXCom compiler across multiple standard paths
+- **Automatic DXCom Detection**: Finds the DXCom compiler from the system PATH
 - **Environment Validation**: Pre-flight checks before compilation
 - **Theme Support**: Light and dark UI modes
 - **Settings Persistence**: Configurable default paths and preferences
@@ -57,10 +57,27 @@ python main.py
 
 ### Desktop Integration (Linux)
 
+**Automated (recommended):**
+```bash
+cd dx_com-gui/install
+./install.sh
+```
+This installs system dependencies, creates a `.venv`, registers a `dxcom-gui`
+launcher in `~/bin/`, and adds a desktop entry to the application menu.
+
+**Manual:**
 ```bash
 sudo cp install/dxcom-gui.desktop /usr/share/applications/
 sudo cp resources/deepx.png /usr/share/pixmaps/dxcom-gui.png
+sudo update-desktop-database
 ```
+
+> **Note for desktop launchers**: `~/.bashrc` is not sourced by graphical
+> sessions. If `dxcom` is not on PATH when launched from the app menu, add it
+> to `~/.profile` instead and log out/back in:
+> ```bash
+> echo 'export PATH="/path/to/dxcom/bin:$PATH"' >> ~/.profile
+> ```
 
 ## Usage
 
@@ -160,8 +177,10 @@ dxcom-gui --dxcom-path /path/to/dxcom
 ## Troubleshooting
 
 **DXCom Compiler Not Found**
-- Ensure DXCom is installed and on your system PATH
+- Ensure DXCom is installed and on your system PATH: `which dxcom`
 - Or use `--dxcom-path /path/to/dxcom` to specify the executable directly
+- **When launched from desktop**: `~/.bashrc` is not sourced by desktop launchers.
+  Add the PATH entry to `~/.profile` instead and log out/back in.
 
 **Compilation Fails**
 - Verify the ONNX model is valid
@@ -198,7 +217,13 @@ dx_com-gui/
 │   ├── environment_validator.py # System pre-flight checks
 │   ├── json_config_dialog.py    # JSON config editor dialog
 │   ├── python_script_dialog.py  # Python script generator dialog
-│   └── themes.py                # Light/dark theme stylesheets
+│   ├── themes.py                # Light/dark theme stylesheets
+│   └── resources/               # Icons bundled with the package
+│       ├── deepx.png
+│       ├── deepx_16.png
+│       ├── deepx_32.png
+│       ├── deepx_64.png
+│       └── deepx_128.png
 ├── tests/
 │   ├── requirements.txt              # Development/test dependencies
 │   ├── test_settings_manager.py
