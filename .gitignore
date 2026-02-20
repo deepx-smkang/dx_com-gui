@@ -58,6 +58,3 @@ htmlcov/
 
 # Internal development notes
 docs/development/
-
-# Duplicate resources
-src/resources/
