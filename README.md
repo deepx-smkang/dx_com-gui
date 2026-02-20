@@ -174,7 +174,16 @@ dxcom-gui --dxcom-path /path/to/dxcom
 
 **DXCom Compiler Not Found**
 - Ensure DXCom is installed and on your system PATH: `which dxcom`
-- Or use `--dxcom-path /path/to/dxcom` to specify the executable directly
+- If DXCom was installed via `dx-compiler/install.sh`, activate its virtual environment first:
+  ```bash
+  source /path/to/dx-compiler/venv-dx-compiler-local/bin/activate
+  which dxcom   # should now resolve
+  dxcom-gui
+  ```
+- Or skip venv activation entirely by passing the path directly:
+  ```bash
+  dxcom-gui --dxcom-path /path/to/dx-compiler/venv-dx-compiler-local/bin/dxcom
+  ```
 
 **Compilation Fails**
 - Verify the ONNX model is valid
