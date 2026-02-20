@@ -1,0 +1,37 @@
+# MANIFEST.in - Include additional files in package distribution
+
+# Documentation
+include README.md
+include LICENSE
+include CHANGELOG.md
+
+# Installation files
+recursive-include install *.sh *.desktop
+
+# Documentation
+recursive-include docs *.md *.txt
+
+# Resources
+recursive-include resources *.png *.jpg *.svg *.qss *.json
+recursive-include src/resources *.png *.jpg *.svg *.qss *.json
+
+# Tests (for source distribution)
+recursive-include tests *.py
+
+# Configuration
+include requirements.txt
+include requirements-dev.txt
+include pyproject.toml
+
+# Exclude build artifacts
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude *.so
+prune .venv
+prune .pytest_cache
+prune build
+prune dist
+prune *.egg-info
+
