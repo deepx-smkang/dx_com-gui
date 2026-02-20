@@ -63,31 +63,6 @@ pip install PySide6
 python main.py
 ```
 
-### Method 3: Automated Setup Script
-
-```bash
-cd dx_com-gui/install
-./install.sh
-```
-
-This script:
-1. Installs system apt packages
-2. Creates a `.venv` in the project root
-3. Installs Python dependencies
-4. Registers a `dxcom-gui` launcher in `~/bin/`
-5. Installs a `.desktop` entry for the application menu
-
----
-
-## Desktop Integration (Manual)
-
-```bash
-# Application menu entry
-sudo cp install/dxcom-gui.desktop /usr/share/applications/
-sudo cp resources/deepx.png /usr/share/pixmaps/dxcom-gui.png
-sudo update-desktop-database
-```
-
 ---
 
 ## Verification
@@ -133,5 +108,4 @@ sudo apt install python3.10 python3.10-venv
 ```bash
 pip uninstall dxcom-gui
 rm -rf ~/.dxcom_gui
-rm ~/.local/share/applications/dxcom-gui.desktop 2>/dev/null
 ```

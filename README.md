@@ -55,30 +55,6 @@ pip install PySide6
 python main.py
 ```
 
-### Desktop Integration (Linux)
-
-**Automated (recommended):**
-```bash
-cd dx_com-gui/install
-./install.sh
-```
-This installs system dependencies, creates a `.venv`, registers a `dxcom-gui`
-launcher in `~/bin/`, and adds a desktop entry to the application menu.
-
-**Manual:**
-```bash
-sudo cp install/dxcom-gui.desktop /usr/share/applications/
-sudo cp resources/deepx.png /usr/share/pixmaps/dxcom-gui.png
-sudo update-desktop-database
-```
-
-> **Note for desktop launchers**: `~/.bashrc` is not sourced by graphical
-> sessions. If `dxcom` is not on PATH when launched from the app menu, add it
-> to `~/.profile` instead and log out/back in:
-> ```bash
-> echo 'export PATH="/path/to/dxcom/bin:$PATH"' >> ~/.profile
-> ```
-
 ## Usage
 
 ### Basic Workflow
@@ -179,8 +155,6 @@ dxcom-gui --dxcom-path /path/to/dxcom
 **DXCom Compiler Not Found**
 - Ensure DXCom is installed and on your system PATH: `which dxcom`
 - Or use `--dxcom-path /path/to/dxcom` to specify the executable directly
-- **When launched from desktop**: `~/.bashrc` is not sourced by desktop launchers.
-  Add the PATH entry to `~/.profile` instead and log out/back in.
 
 **Compilation Fails**
 - Verify the ONNX model is valid
@@ -242,10 +216,6 @@ dx_com-gui/
 │   ├── deepx_32.png
 │   ├── deepx_64.png
 │   └── deepx_128.png
-└── install/
-    ├── dxcom-gui.desktop
-    ├── install.sh
-    └── launcher.sh
 ```
 
 ## Development

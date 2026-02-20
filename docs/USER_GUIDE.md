@@ -136,12 +136,6 @@ Settings are saved to `~/.dxcom_gui/settings.json`.
 **DXCom not found**
 - Ensure `dxcom` is on your system PATH: `which dxcom`
 - Or launch with: `dxcom-gui --dxcom-path /path/to/dxcom`
-- **Desktop launcher only**: `~/.bashrc` is not sourced by desktop apps. Add your
-  PATH entry to `~/.profile` instead so the desktop launcher picks it up:
-  ```bash
-  echo 'export PATH="/path/to/dxcom/bin:$PATH"' >> ~/.profile
-  # Then log out and back in
-  ```
 
 **Compilation fails**
 - Check the output log for the specific error message
