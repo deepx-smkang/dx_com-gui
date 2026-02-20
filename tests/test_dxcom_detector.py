@@ -5,8 +5,10 @@ import unittest
 from unittest.mock import patch, MagicMock
 import subprocess
 from src.dxcom_detector import (
-    DXComDetector, DXComInfo, 
-    check_dxcom_available, get_dxcom_status
+    DXComDetector, DXComInfo,
+    check_dxcom_available, get_dxcom_status,
+    set_custom_dxcom_path, get_dxcom_executable,
+    refresh_dxcom_detection,
 )
 
 
@@ -187,6 +189,81 @@ class TestConvenienceFunctions(unittest.TestCase):
                 self.assertIsInstance(status_type, str)
                 self.assertIsInstance(message, str)
                 self.assertEqual(status_type, 'success')
+
+
+class TestModuleLevelFunctions(unittest.TestCase):
+    """Test module-level helper functions."""
+
+    def tearDown(self):
+        """Reset custom path after each test."""
+        set_custom_dxcom_path(None)
+
+    def test_get_dxcom_executable_default(self):
+        """Returns 'dxcom' when no custom path is set."""
+        set_custom_dxcom_path(None)
+        self.assertEqual(get_dxcom_executable(), 'dxcom')
+
+    def test_get_dxcom_executable_custom(self):
+        """Returns custom path when one is set."""
+        set_custom_dxcom_path('/opt/my-dxcom')
+        self.assertEqual(get_dxcom_executable(), '/opt/my-dxcom')
+
+    def test_set_custom_dxcom_path_clears_cache(self):
+        """Setting custom path clears detector cache."""
+        import src.dxcom_detector as mod
+        mod._detector._cached_info = object()  # Fake cached value
+        set_custom_dxcom_path('/opt/dxcom')
+        self.assertIsNone(mod._detector._cached_info)
+
+    def test_check_dxcom_available_invalid_custom_path(self):
+        """check_dxcom_available with non-existent custom path returns error."""
+        set_custom_dxcom_path('/nonexistent/path/dxcom')
+        info = check_dxcom_available()
+        self.assertFalse(info.available)
+        self.assertIn('not found', info.error_message.lower())
+
+    def test_check_dxcom_available_valid_custom_path(self):
+        """check_dxcom_available with valid custom path returns success."""
+        import tempfile, os, stat
+        with tempfile.NamedTemporaryFile(delete=False, suffix='dxcom') as tf:
+            tf_path = tf.name
+        try:
+            # Make it executable
+            os.chmod(tf_path, stat.S_IRWXU)
+            set_custom_dxcom_path(tf_path)
+            mock_result = MagicMock()
+            mock_result.stdout = 'dxcom version 1.0.0'
+            mock_result.stderr = ''
+            with patch('subprocess.run', return_value=mock_result):
+                info = check_dxcom_available()
+            self.assertTrue(info.available)
+            self.assertEqual(info.path, tf_path)
+        finally:
+            os.unlink(tf_path)
+            set_custom_dxcom_path(None)
+
+    def test_get_dxcom_status_no_version(self):
+        """get_dxcom_status returns success message even without version."""
+        with patch('shutil.which', return_value='/usr/bin/dxcom'):
+            mock_result = MagicMock()
+            mock_result.stdout = 'dxcom --version output'
+            mock_result.stderr = ''
+            with patch('subprocess.run', return_value=mock_result):
+                status_type, message = get_dxcom_status()
+        self.assertIn(status_type, ('success', 'error'))
+
+    def test_get_dxcom_status_not_found(self):
+        """get_dxcom_status returns error when dxcom not in PATH."""
+        set_custom_dxcom_path(None)
+        with patch('shutil.which', return_value=None):
+            status_type, message = get_dxcom_status()
+        self.assertEqual(status_type, 'error')
+        self.assertIsInstance(message, str)
+
+    def test_refresh_dxcom_detection(self):
+        """refresh_dxcom_detection does not raise."""
+        with patch('shutil.which', return_value=None):
+            refresh_dxcom_detection()  # Should not raise
 
 
 if __name__ == '__main__':

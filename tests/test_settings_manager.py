@@ -203,6 +203,37 @@ class TestSettingsManager(unittest.TestCase):
         self.assertEqual(new_manager.get('theme'), 'dark')
         self.assertEqual(new_manager.get('max_recent_files'), 7)
 
+    # ------------------------------------------------------------------
+    # Error-handling paths
+    # ------------------------------------------------------------------
+
+    def test_load_settings_with_corrupt_json(self):
+        """_load_settings gracefully handles corrupt JSON (keeps defaults)."""
+        self.manager.settings_dir.mkdir(parents=True, exist_ok=True)
+        self.manager.settings_file.write_text('{ NOT VALID JSON }')
+        self.manager._load_settings()
+        # Defaults should still be intact
+        self.assertEqual(self.manager.get('theme'), 'light')
+
+    def test_save_settings_failure_does_not_raise(self):
+        """_save_settings handles write failure without raising."""
+        # Make settings_file point to a directory so open() fails
+        self.manager.settings_file.mkdir(parents=True, exist_ok=True)
+        self.manager._save_settings()  # Should not raise
+
+    def test_load_recent_files_with_corrupt_json(self):
+        """_load_recent_files resets list on corrupt JSON."""
+        self.manager.recent_files_file.parent.mkdir(parents=True, exist_ok=True)
+        self.manager.recent_files_file.write_text('NOT JSON [[[')
+        self.manager.recent_files = ['/fake/existing.onnx']
+        self.manager._load_recent_files()
+        self.assertEqual(self.manager.recent_files, [])
+
+    def test_save_recent_files_failure_does_not_raise(self):
+        """_save_recent_files handles write failure without raising."""
+        self.manager.recent_files_file.mkdir(parents=True, exist_ok=True)
+        self.manager._save_recent_files()  # Should not raise
+
 
 if __name__ == '__main__':
     unittest.main()
