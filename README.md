@@ -182,7 +182,6 @@ dxcom-gui --dxcom-path /path/to/dxcom
 dx_com-gui/
 ├── main.py                      # Alternate entry point
 ├── requirements.txt             # Runtime dependency (PySide6)
-├── requirements-dev.txt         # Development dependencies
 ├── pyproject.toml               # Build config; entry point: dxcom-gui
 ├── setup.py
 ├── CHANGELOG.md
@@ -201,6 +200,7 @@ dx_com-gui/
 │   ├── python_script_dialog.py  # Python script generator dialog
 │   └── themes.py                # Light/dark theme stylesheets
 ├── tests/
+│   ├── requirements-dev.txt         # Development/test dependencies
 │   ├── test_settings_manager.py
 │   ├── test_dxcom_detector.py
 │   ├── test_dxcom_wrapper.py
@@ -246,6 +246,6 @@ python -m pytest tests/test_settings_manager.py -v
 ### Building the Package
 
 ```bash
-pip install -r requirements-dev.txt
+pip install -r tests/requirements-dev.txt
 python -m build
 ```
