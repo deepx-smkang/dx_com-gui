@@ -187,18 +187,9 @@ class MainWindow(QMainWindow):
         icon = QIcon()
         icon_sizes = ['deepx_16.png', 'deepx_32.png', 'deepx_64.png', 'deepx_128.png']
         
-        # Try multiple possible locations for the icons
+        # Icons live in src/resources/ (installed as src.resources package data)
         base_paths = [
-            # When running from source
-            os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                'resources'
-            ),
-            # When installed as package
-            os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                'resources'
-            ),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources'),
         ]
         
         for base_path in base_paths:
@@ -226,7 +217,6 @@ class MainWindow(QMainWindow):
         # Try to find logo
         logo_paths = [
             os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources', 'deepx.png'),
-            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'resources', 'deepx.png'),
         ]
         
         logo_loaded = False

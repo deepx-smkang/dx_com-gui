@@ -1,6 +1,7 @@
 # DXCom GUI - ONNX to DXNN Model Compiler
 
-A desktop application for compiling ONNX models to DXNN format using the DXCom compiler. Built with PySide6 (Qt for Python), it provides an intuitive interface for deep neural network model conversion.
+A desktop application for compiling ONNX models to DXNN format using the DXCom compiler.  
+Built with PySide6 (Qt for Python), it provides an intuitive interface for deep neural network model conversion.
 
 ## Features
 
@@ -94,13 +95,15 @@ python main.py
 4. **Configure compilation** (optional):
    - **Config File**: Select or edit a JSON compiler config (click **Edit** to open the built-in editor)
    - **Optimization Level**: Set the optimization level
-   - **Calibration Method / Calibration Samples** (Python mode)
-   - **Quantization Device** (Python mode)
+   - **Calibration Method**: Calibration method for quantization (`ema` or `minmax`, default: `ema`)
+   - **Calibration Samples**: Number of calibration samples to use for quantization (default: 100)
+   - **Quantization Device**: Device for quantization computation (Python mode)
    - **Input Nodes / Output Nodes / Enhanced Scheme** (optional)
    - **Generate log file** / **Aggressive partitioning** checkboxes
 
-5. **Configure preprocessing** (Python mode with DataLoader):
-   - Select **PyTorch DataLoader** as the data source
+5. **Configure preprocessing** (Only with config JSON file):
+   - Select **Config File** as the data source
+   - Autofilled based on JSON file
    - Set **Dataset Path** and file extensions
    - Fill in any preprocessing fields: Convert Color, Resize, Center Crop, Transpose, Expand Dim, Normalize, Mul, Add, Subtract, Div
 
@@ -239,12 +242,6 @@ dx_com-gui/
 ├── docs/
 │   ├── INSTALLATION.md
 │   └── USER_GUIDE.md
-├── resources/
-│   ├── deepx.png                # Application icon (16/32/64/128 px variants also included)
-│   ├── deepx_16.png
-│   ├── deepx_32.png
-│   ├── deepx_64.png
-│   └── deepx_128.png
 ```
 
 ## Development

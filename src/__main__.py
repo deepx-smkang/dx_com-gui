@@ -79,10 +79,9 @@ def main():
     icon = QIcon()
     icon_sizes = ['deepx_16.png', 'deepx_32.png', 'deepx_64.png', 'deepx_128.png']
     
-    # Try to find icons
+    # Icons live in src/resources/ (installed as src.resources package data)
     base_paths = [
         os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources'),
-        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'resources'),
     ]
     
     for base_path in base_paths:
