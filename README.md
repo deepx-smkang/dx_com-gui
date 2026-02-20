@@ -200,7 +200,7 @@ dx_com-gui/
 │   ├── python_script_dialog.py  # Python script generator dialog
 │   └── themes.py                # Light/dark theme stylesheets
 ├── tests/
-│   ├── requirements-dev.txt         # Development/test dependencies
+│   ├── requirements.txt              # Development/test dependencies
 │   ├── test_settings_manager.py
 │   ├── test_dxcom_detector.py
 │   ├── test_dxcom_wrapper.py
@@ -246,6 +246,6 @@ python -m pytest tests/test_settings_manager.py -v
 ### Building the Package
 
 ```bash
-pip install -r tests/requirements-dev.txt
+pip install -r tests/requirements.txt
 python -m build
 ```
