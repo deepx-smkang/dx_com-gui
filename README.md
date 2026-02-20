@@ -104,7 +104,6 @@ dxcom-gui [OPTIONS]
   --output FILE       Output file path (pre-fills the output directory)
   --theme THEME       UI theme: light or dark  [default: light]
   --dxcom-path PATH   Custom path to the DXCom compiler executable
-  --debug             Enable debug logging
   -h, --help          Show this help message and exit
 ```
 

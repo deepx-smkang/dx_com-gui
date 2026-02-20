@@ -47,12 +47,6 @@ def parse_arguments():
         help='Custom DXCom compiler path'
     )
     
-    parser.add_argument(
-        '--debug',
-        action='store_true',
-        help='Enable debug logging'
-    )
-    
     return parser.parse_args()
 
 
@@ -112,9 +106,7 @@ def main():
         window.apply_theme(args.theme)
     if args.dxcom_path:
         window.set_dxcom_path(args.dxcom_path)
-    if args.debug:
-        window.enable_debug_logging()
-    
+
     window.show()
     
     # Start event loop and return exit code
