@@ -225,7 +225,8 @@ class DXComExecutor(QThread):
         Returns:
             List of command arguments
         """
-        cmd = ['dxcom']
+        from .dxcom_detector import get_dxcom_executable
+        cmd = [get_dxcom_executable()]
         
         # Required: Model path (-m)
         cmd.extend(['-m', self.input_path])

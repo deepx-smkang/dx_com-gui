@@ -171,6 +171,31 @@ class DXComDetector:
 # Global detector instance
 _detector = DXComDetector()
 
+# Custom path override (set via --dxcom-path CLI arg)
+_custom_dxcom_path: Optional[str] = None
+
+
+def set_custom_dxcom_path(path: str):
+    """
+    Override the dxcom executable path.
+
+    Args:
+        path: Full path to the dxcom executable
+    """
+    global _custom_dxcom_path
+    _custom_dxcom_path = path
+    _detector.clear_cache()
+
+
+def get_dxcom_executable() -> str:
+    """
+    Return the dxcom executable to use (custom override or 'dxcom' from PATH).
+
+    Returns:
+        Executable path string
+    """
+    return _custom_dxcom_path if _custom_dxcom_path else 'dxcom'
+
 
 def check_dxcom_available() -> DXComInfo:
     """
@@ -179,6 +204,19 @@ def check_dxcom_available() -> DXComInfo:
     Returns:
         DXComInfo object with detection results
     """
+    if _custom_dxcom_path:
+        import os
+        if not os.path.isfile(_custom_dxcom_path) or not os.access(_custom_dxcom_path, os.X_OK):
+            return DXComInfo(
+                available=False,
+                error_message=f"Custom dxcom path not found or not executable: {_custom_dxcom_path}"
+            )
+        version = _detector._get_version(_custom_dxcom_path)
+        return DXComInfo(
+            available=True,
+            path=_custom_dxcom_path,
+            version=version
+        )
     return _detector.detect()
 
 
@@ -189,7 +227,13 @@ def get_dxcom_status() -> Tuple[str, str]:
     Returns:
         Tuple of (status_type, message)
     """
-    return _detector.get_user_friendly_status()
+    info = check_dxcom_available()
+    if info.is_valid():
+        if info.version:
+            return ('success', f'dxcom detected: {info.version} at {info.path}')
+        else:
+            return ('success', f'dxcom detected at {info.path}')
+    return ('error', info.error_message or 'dxcom not available')
 
 
 def refresh_dxcom_detection():

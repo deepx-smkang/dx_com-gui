@@ -3043,7 +3043,13 @@ Failed: {self.batch_failed_count}{duration_text}
                 self.theme_action.setText("Switch to &Dark Theme")
             else:
                 self.theme_action.setText("Switch to &Light Theme")
-    
+
+    def set_dxcom_path(self, path: str):
+        """Override the dxcom executable path (from --dxcom-path CLI arg)."""
+        from .dxcom_detector import set_custom_dxcom_path, refresh_dxcom_detection
+        set_custom_dxcom_path(path)
+        refresh_dxcom_detection()
+
     def _on_show_shortcuts(self):
         """Show keyboard shortcuts dialog."""
         shortcuts_text = """

@@ -33,8 +33,8 @@ A desktop application for compiling ONNX models to DXNN format using the DXCom c
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/dx_com_gui.git
-cd dx_com_gui
+git clone https://github.com/DEEPX-AI/dx_com-gui.git
+cd dx_com-gui
 
 # Create and activate a virtual environment
 python3 -m venv .venv
@@ -50,7 +50,7 @@ dxcom-gui
 ### Run Without Installing
 
 ```bash
-cd dx_com_gui
+cd dx_com-gui
 pip install PySide6
 python main.py
 ```
@@ -151,21 +151,12 @@ Open **Settings** from the menu to configure default browse directories:
 
 ### DXCom Compiler Detection
 
-The application searches for the compiler in this order:
+The application finds `dxcom` from the **system PATH**. Make sure `dxcom` is on your PATH before launching.
 
-1. `DXCOM_PATH` environment variable
-2. `/opt/dxcom/bin/dxcom`
-3. `/usr/local/bin/dxcom`
-4. `/usr/bin/dxcom`
-5. `~/dxcom/bin/dxcom`
-6. System `PATH`
-
-To specify a custom location permanently:
+To override with a specific executable:
 ```bash
-export DXCOM_PATH=/path/to/dxcom
+dxcom-gui --dxcom-path /path/to/dxcom
 ```
-
-Or pass it at launch: `dxcom-gui --dxcom-path /path/to/dxcom`
 
 ## Troubleshooting
 
@@ -189,7 +180,7 @@ Or pass it at launch: `dxcom-gui --dxcom-path /path/to/dxcom`
 ## Project Structure
 
 ```
-dx_com_gui/
+dx_com-gui/
 ├── main.py                      # Alternate entry point
 ├── requirements.txt             # Runtime dependency (PySide6)
 ├── requirements-dev.txt         # Development dependencies
@@ -259,7 +250,3 @@ python -m pytest tests/test_settings_manager.py -v
 pip install -r requirements-dev.txt
 python -m build
 ```
-
-## License
-
-This project is proprietary software. All rights reserved.
