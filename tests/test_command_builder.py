@@ -39,8 +39,10 @@ def test_minimal_configuration():
     
     # Verify
     assert cmd[0] == 'dxcom', "First arg should be 'dxcom'"
-    assert cmd[1] == '/models/model.onnx', "Second arg should be input path"
-    assert cmd[2] == '/output/model.dxnn', "Third arg should be output path"
+    assert cmd[1] == '-m', "Second arg should be '-m' flag"
+    assert cmd[2] == '/models/model.onnx', "Third arg should be input path"
+    assert cmd[3] == '-o', "Fourth arg should be '-o' flag"
+    assert '/output' in cmd[4], "Fifth arg should be output directory"
     assert '--opt_level' in cmd, "Should include opt_level"
     assert '0' in cmd, "opt_level should be 0"
     assert '-c' not in cmd, "Should not include -c (no config)"
@@ -75,8 +77,9 @@ def test_full_configuration():
     
     # Verify
     assert cmd[0] == 'dxcom', "First arg should be 'dxcom'"
-    assert cmd[1] == '/models/bert.onnx', "Second arg should be input path"
-    assert cmd[2] == '/output/bert.dxnn', "Third arg should be output path"
+    assert cmd[1] == '-m', "Second arg should be '-m' flag"
+    assert cmd[2] == '/models/bert.onnx', "Third arg should be input path"
+    assert cmd[3] == '-o', "Fourth arg should be '-o' flag"
     assert '-c' in cmd, "Should include -c"
     assert '/configs/bert.json' in cmd, "Should include config path"
     assert '--opt_level' in cmd, "Should include opt_level"
@@ -183,15 +186,16 @@ def test_command_format():
     cmd_str = ' '.join(cmd)
     print(f"Generated command:\n{cmd_str}")
     
-    # Verify format: dxcom input.onnx output.dxnn [options]
+    # Verify format: dxcom -m input.onnx -o output_dir [options]
     assert cmd[0] == 'dxcom', "Should start with dxcom"
-    assert cmd[1] == 'input.onnx', "Second should be input (no -i flag)"
-    assert cmd[2] == 'output.dxnn', "Third should be output (no -o flag)"
-    assert '-i' not in cmd, "Should NOT use -i flag"
-    assert '-o' not in cmd, "Should NOT use -o flag"
+    assert cmd[1] == '-m', "Second arg should be '-m' flag"
+    assert cmd[2] == 'input.onnx', "Third arg should be input (after -m flag)"
+    assert cmd[3] == '-o', "Fourth arg should be '-o' flag"
+    assert '-m' in cmd, "Should use -m flag for input"
+    assert '-o' in cmd, "Should use -o flag for output"
     
-    # Check that format matches: dxcom input output -c config --opt_level 1 ...
-    expected_start = 'dxcom input.onnx output.dxnn'
+    # Check that format matches: dxcom -m input -o output_dir ...
+    expected_start = 'dxcom -m input.onnx -o'
     assert cmd_str.startswith(expected_start), f"Should start with '{expected_start}'"
     
     print(f"✅ PASS: Command format correct (positional args)\n")

@@ -89,6 +89,14 @@ class SettingsManager:
     def get_all(self) -> Dict[str, Any]:
         """Get all settings."""
         return self.settings.copy()
+
+    def get_all_settings(self) -> Dict[str, Any]:
+        """Get all settings (public alias for get_all)."""
+        return self.get_all()
+
+    def save_settings(self):
+        """Save settings to file (public alias for _save_settings)."""
+        self._save_settings()
     
     def update_settings(self, new_settings: Dict[str, Any]):
         """Update multiple settings at once."""
@@ -97,7 +105,7 @@ class SettingsManager:
     
     def add_recent_file(self, file_path: str):
         """Add a file to recent files list."""
-        if not file_path or not os.path.exists(file_path):
+        if not file_path:
             return
         
         # Remove if already exists
@@ -115,8 +123,6 @@ class SettingsManager:
     
     def get_recent_files(self) -> List[str]:
         """Get list of recent files."""
-        # Filter out files that no longer exist
-        self.recent_files = [f for f in self.recent_files if os.path.exists(f)]
         return self.recent_files.copy()
     
     def clear_recent_files(self):
