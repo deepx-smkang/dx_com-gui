@@ -26,11 +26,11 @@ setup(
     long_description_content_type="text/markdown",
     author="Your Name",
     author_email="contact@example.com",
-    url="https://github.com/yourusername/dx_com_gui",
+    url="https://github.com/deepx-smkang/dx_com-gui",
     project_urls={
-        "Documentation": "https://github.com/yourusername/dx_com_gui/blob/main/README.md",
-        "Source": "https://github.com/yourusername/dx_com_gui",
-        "Tracker": "https://github.com/yourusername/dx_com_gui/issues",
+        "Documentation": "https://github.com/deepx-smkang/dx_com-gui/blob/main/README.md",
+        "Source": "https://github.com/deepx-smkang/dx_com-gui",
+        "Tracker": "https://github.com/deepx-smkang/dx_com-gui/issues",
     },
     
     # Package configuration
@@ -59,9 +59,6 @@ setup(
     entry_points={
         "console_scripts": [
             "dxcom-gui=src.__main__:main",
-        ],
-        "gui_scripts": [
-            "dxcom-gui-app=src.__main__:main",
         ],
     },
     
