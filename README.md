@@ -33,10 +33,19 @@ A desktop application for compiling ONNX models to DXNN format using the DXCom c
   cd dx-compiler
   ./install.sh
   ```
-  After installation, ensure `dxcom` is available on your system PATH:
+  After installation, activate the virtual environment created by the installer and ensure `dxcom` is on your system PATH:
   ```bash
+  # Activate the dx-compiler virtual environment
+  source /path/to/dx-compiler/venv-dx-compiler-local/bin/activate
+
+  # Verify dxcom is available
   which dxcom
   ```
+
+  > **Note**: The venv is created at `venv-dx-compiler-local/` inside the `dx-compiler` directory by default. Alternatively, use `--dxcom-path` to point directly to the executable without activating the venv:
+  > ```bash
+  > dxcom-gui --dxcom-path /path/to/dx-compiler/venv-dx-compiler-local/bin/dxcom
+  > ```
 
 ## Installation
 
