@@ -173,8 +173,8 @@ dxcom-gui --dxcom-path /path/to/dxcom
 - For X11 issues: `export QT_QPA_PLATFORM=xcb`
 
 **Getting Help**
-- See the `docs/` directory for detailed guides
-- `docs/INSTALLATION.md`, `docs/USER_GUIDE.md`, `docs/QUICK_REFERENCE.md`
+- `docs/INSTALLATION.md` — full installation and troubleshooting guide
+- `docs/USER_GUIDE.md` — detailed usage instructions
 
 ## Project Structure
 
@@ -209,13 +209,8 @@ dx_com-gui/
 │   ├── test_command_builder.py
 │   └── test_sample_models.py
 ├── docs/
-│   ├── API.md
-│   ├── DEPLOYMENT.md
 │   ├── INSTALLATION.md
-│   ├── QUICK_REFERENCE.md
-│   ├── USER_GUIDE.md
-│   ├── integration_guide.md
-│   └── dxcom_wrapper.md
+│   └── USER_GUIDE.md
 ├── resources/
 │   ├── deepx.png                # Application icon (16/32/64/128 px variants also included)
 │   ├── deepx_16.png
