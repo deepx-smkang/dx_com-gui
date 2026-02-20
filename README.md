@@ -198,8 +198,8 @@ dxcom-gui --dxcom-path /path/to/dxcom
 - For X11 issues: `export QT_QPA_PLATFORM=xcb`
 
 **Getting Help**
-- `docs/INSTALLATION.md` — full installation and troubleshooting guide
-- `docs/USER_GUIDE.md` — detailed usage instructions
+- [docs/INSTALLATION.md](docs/INSTALLATION.md) — full installation and troubleshooting guide
+- [docs/USER_GUIDE.md](docs/USER_GUIDE.md) — detailed usage instructions
 
 ## Project Structure
 
