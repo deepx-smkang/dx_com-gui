@@ -27,6 +27,17 @@ A desktop application for compiling ONNX models to DXNN format using the DXCom c
 - **PySide6** ≥ 6.4.0 (Qt for Python)
 - **DXCom Compiler**: The ONNX to DXNN compiler (installed separately)
 
+  Install from [https://github.com/DEEPX-AI/dx-compiler](https://github.com/DEEPX-AI/dx-compiler):
+  ```bash
+  git clone https://github.com/DEEPX-AI/dx-compiler.git
+  cd dx-compiler
+  ./install.sh
+  ```
+  After installation, ensure `dxcom` is available on your system PATH:
+  ```bash
+  which dxcom
+  ```
+
 ## Installation
 
 ### Install from Source
@@ -106,7 +117,7 @@ dxcom-gui [OPTIONS]
 dxcom-gui --input model.onnx
 
 # Use dark theme with a custom compiler path
-dxcom-gui --theme dark --dxcom-path /opt/dxcom/bin/dxcom
+dxcom-gui --theme dark --dxcom-path /path/to/venv/bin/dxcom
 ```
 
 ## Configuration
