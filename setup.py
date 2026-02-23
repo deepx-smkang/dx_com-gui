@@ -58,7 +58,7 @@ setup(
     # Entry points
     entry_points={
         "console_scripts": [
-            "dx-com-gui=src.__main__:main",
+            "dxcom-gui=src.__main__:main",
         ],
     },
     

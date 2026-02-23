@@ -62,7 +62,7 @@ Issues = "https://github.com/deepx-smkang/dx_com-gui/issues"
 Changelog = "https://github.com/deepx-smkang/dx_com-gui/blob/main/CHANGELOG.md"
 
 [project.scripts]
-dx-com-gui = "src.__main__:main"
+dxcom-gui = "src.__main__:main"
 
 [tool.setuptools]
 packages = ["src", "src.resources"]
