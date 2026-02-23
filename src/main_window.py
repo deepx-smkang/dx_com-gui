@@ -173,9 +173,13 @@ class MainWindow(QMainWindow):
         self.apply_theme(current_theme)
         
         # Defer one more tab style refresh to after the event loop starts,
-        # so Qt's initial repaint cycle doesn't override the container stylesheet
+        # so Qt's initial repaint cycle doesn't override the container stylesheet.
+        # Read the theme from settings_manager at fire-time so that an external
+        # apply_theme() call (e.g. --theme dark from CLI) is respected.
         from PySide6.QtCore import QTimer
-        QTimer.singleShot(0, lambda: self._update_tab_styles(current_theme))
+        QTimer.singleShot(0, lambda: self._update_tab_styles(
+            self.settings_manager.get('theme', 'light')
+        ))
         
         # Initialize status label to IDLE
         self._set_compilation_status(CompilationStatus.IDLE)
@@ -3010,6 +3014,8 @@ Failed: {self.batch_failed_count}{duration_text}
     
     def apply_theme(self, theme: str):
         """Apply the specified theme."""
+        # Persist so the deferred QTimer and any other reader see the correct value
+        self.settings_manager.set('theme', theme)
         stylesheet = get_theme_stylesheet(theme)
         self.setStyleSheet(stylesheet)
         
