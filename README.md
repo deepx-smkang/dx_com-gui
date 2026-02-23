@@ -270,3 +270,29 @@ python -m pytest tests/test_settings_manager.py -v
 pip install -r tests/requirements.txt
 python -m build
 ```
+
+
+## 📄 License & Third-Party Notices
+
+This project is proprietary software. All rights reserved by DEEPX.
+
+### Third-Party Libraries
+
+This application uses the following open-source libraries:
+
+#### PySide6 (Qt for Python)
+
+> **License:** GNU Lesser General Public License v3 (LGPLv3)  
+> **Copyright:** The Qt Company Ltd.  
+> **Source:** [https://www.qt.io/download-open-source](https://www.qt.io/download-open-source)  
+> **PyPI:** [https://pypi.org/project/PySide6/](https://pypi.org/project/PySide6/)
+
+PySide6 is the official Python binding for the Qt framework, provided by The Qt Company under the LGPLv3.  
+This application **dynamically links** PySide6 at runtime and does **not** modify the PySide6 library itself.
+
+Under the LGPLv3:
+- You may use, distribute, and run this application without being required to open-source it.
+- End users must be able to replace the PySide6 shared library with a compatible version.  
+  PySide6 is installed as a standard Python package (`pip install PySide6`) and can be upgraded or replaced independently.
+- The full text of the LGPLv3 license is available at: [https://www.gnu.org/licenses/lgpl-3.0.html](https://www.gnu.org/licenses/lgpl-3.0.html)
+- The full text of the Qt license is available at: [https://www.qt.io/licensing/](https://www.qt.io/licensing/)
