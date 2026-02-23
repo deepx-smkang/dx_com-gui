@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dxcom-gui"
+name = "dx-com-gui"
 version = "1.0.0"
 description = "Professional GUI for compiling ONNX models to DXNN format using DXCom compiler"
 readme = "README.md"
@@ -62,7 +62,7 @@ Issues = "https://github.com/deepx-smkang/dx_com-gui/issues"
 Changelog = "https://github.com/deepx-smkang/dx_com-gui/blob/main/CHANGELOG.md"
 
 [project.scripts]
-dxcom-gui = "src.__main__:main"
+dx-com-gui = "src.__main__:main"
 
 [tool.setuptools]
 packages = ["src", "src.resources"]

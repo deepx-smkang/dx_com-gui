@@ -45,7 +45,7 @@ Built with PySide6 (Qt for Python), it provides an intuitive interface for deep 
 
   > **Note**: The venv is created at `venv-dx-compiler-local/` inside the `dx-compiler` directory by default. Alternatively, use `--dxcom-path` to point directly to the executable without activating the venv:
   > ```bash
-  > dxcom-gui --dxcom-path /path/to/dx-compiler/venv-dx-compiler-local/bin/dxcom
+  > dx-com-gui --dxcom-path /path/to/dx-compiler/venv-dx-compiler-local/bin/dxcom
   > ```
 
 ## 🚀 Installation
@@ -61,11 +61,11 @@ cd dx_com-gui
 python3 -m venv .venv
 source .venv/bin/activate
 
-# Install the package (creates the `dxcom-gui` entry point)
+# Install the package (creates the `dx-com-gui` entry point)
 pip install .
 
 # Run
-dxcom-gui
+dx-com-gui
 ```
 
 ### ▶️ Run Without Installing
@@ -82,7 +82,7 @@ python main.py
 
 1. **Launch the application**
    ```bash
-   dxcom-gui
+   dx-com-gui
    # or: python main.py
    ```
 
@@ -114,7 +114,7 @@ python main.py
 ### 💻 Command Line Options
 
 ```
-dxcom-gui [OPTIONS]
+dx-com-gui [OPTIONS]
 
   --input FILE        Input ONNX model file path (pre-loads on launch)
   --output FILE       Output file path (pre-fills the output directory)
@@ -126,10 +126,10 @@ dxcom-gui [OPTIONS]
 **Examples:**
 ```bash
 # Open with a pre-loaded model
-dxcom-gui --input model.onnx
+dx-com-gui --input model.onnx
 
 # Use dark theme with a custom compiler path
-dxcom-gui --theme dark --dxcom-path /path/to/venv/bin/dxcom
+dx-com-gui --theme dark --dxcom-path /path/to/venv/bin/dxcom
 ```
 
 ## ⚙️ Configuration
@@ -170,7 +170,7 @@ The application finds `dxcom` from the **system PATH**. Make sure `dxcom` is on 
 
 To override with a specific executable:
 ```bash
-dxcom-gui --dxcom-path /path/to/dxcom
+dx-com-gui --dxcom-path /path/to/dxcom
 ```
 
 ## 🔧 Troubleshooting
@@ -181,11 +181,11 @@ dxcom-gui --dxcom-path /path/to/dxcom
   ```bash
   source /path/to/dx-compiler/venv-dx-compiler-local/bin/activate
   which dxcom   # should now resolve
-  dxcom-gui
+  dx-com-gui
   ```
 - Or skip venv activation entirely by passing the path directly:
   ```bash
-  dxcom-gui --dxcom-path /path/to/dx-compiler/venv-dx-compiler-local/bin/dxcom
+  dx-com-gui --dxcom-path /path/to/dx-compiler/venv-dx-compiler-local/bin/dxcom
   ```
 
 **🔴 Compilation Fails**
@@ -207,7 +207,7 @@ dxcom-gui --dxcom-path /path/to/dxcom
 dx_com-gui/
 ├── main.py                      # Alternate entry point
 ├── requirements.txt             # Runtime dependency (PySide6)
-├── pyproject.toml               # Build config; entry point: dxcom-gui
+├── pyproject.toml               # Build config; entry point: dx-com-gui
 ├── setup.py
 ├── CHANGELOG.md
 ├── src/

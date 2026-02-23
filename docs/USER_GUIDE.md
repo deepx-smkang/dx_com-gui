@@ -4,16 +4,16 @@
 
 ```bash
 # If installed via pip
-dxcom-gui
+dx-com-gui
 
 # With a specific model pre-loaded
-dxcom-gui --input /path/to/model.onnx
+dx-com-gui --input /path/to/model.onnx
 
 # With a custom compiler path
-dxcom-gui --dxcom-path /path/to/dxcom
+dx-com-gui --dxcom-path /path/to/dxcom
 
 # Override theme on launch
-dxcom-gui --theme dark
+dx-com-gui --theme dark
 
 # Without installing
 python main.py
@@ -135,7 +135,7 @@ Settings are saved to `~/.dxcom_gui/settings.json`.
 
 **🔴 DXCom not found**
 - Ensure `dxcom` is on your system PATH: `which dxcom`
-- Or launch with: `dxcom-gui --dxcom-path /path/to/dxcom`
+- Or launch with: `dx-com-gui --dxcom-path /path/to/dxcom`
 
 **🔴 Compilation fails**
 - Check the output log for the specific error message

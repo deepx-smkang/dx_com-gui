@@ -19,7 +19,7 @@ if requirements_file.exists():
         requirements = [line.strip() for line in f if line.strip() and not line.startswith('#')]
 
 setup(
-    name="dxcom-gui",
+    name="dx-com-gui",
     version="1.0.0",
     description="Professional GUI for compiling ONNX models to DXNN format using DXCom compiler",
     long_description=long_description,
@@ -58,7 +58,7 @@ setup(
     # Entry points
     entry_points={
         "console_scripts": [
-            "dxcom-gui=src.__main__:main",
+            "dx-com-gui=src.__main__:main",
         ],
     },
     

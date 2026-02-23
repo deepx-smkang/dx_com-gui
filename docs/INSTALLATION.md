@@ -52,7 +52,7 @@ source .venv/bin/activate
 pip install .
 
 # Launch
-dxcom-gui
+dx-com-gui
 ```
 
 ### ▶️ Method 2: Run Without Installing
@@ -106,6 +106,6 @@ sudo apt install python3.10 python3.10-venv
 ## 🗑️ Uninstallation
 
 ```bash
-pip uninstall dxcom-gui
+pip uninstall dx-com-gui
 rm -rf ~/.dxcom_gui
 ```
