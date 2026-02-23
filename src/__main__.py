@@ -68,18 +68,13 @@ def main():
     icon_sizes = ['deepx_16.png', 'deepx_32.png', 'deepx_64.png', 'deepx_128.png']
     
     # Icons live in src/resources/ (installed as src.resources package data)
-    base_paths = [
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources'),
-    ]
-    
-    for base_path in base_paths:
-        for icon_file in icon_sizes:
-            icon_path = os.path.join(base_path, icon_file)
-            if os.path.exists(icon_path):
-                icon.addFile(icon_path)
-        if not icon.isNull():
-            app.setWindowIcon(icon)
-            break
+    base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources')
+    for icon_file in icon_sizes:
+        icon_path = os.path.join(base_path, icon_file)
+        if os.path.exists(icon_path):
+            icon.addFile(icon_path)
+    if not icon.isNull():
+        app.setWindowIcon(icon)
     
     # Create and show main window
     window = MainWindow()

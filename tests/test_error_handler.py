@@ -7,7 +7,7 @@ Tests error parsing, categorization, and message formatting.
 import unittest
 from src.error_handler import (
     DXComError, DXComErrorParser, ErrorCategory,
-    format_error_for_display, format_error_for_messagebox
+    format_error_for_display
 )
 
 
@@ -168,27 +168,6 @@ class TestErrorFormatting(unittest.TestCase):
         
         self.assertIn("Compilation timed out", formatted)
         self.assertNotIn("Long output", formatted)
-    
-    def test_format_for_messagebox(self):
-        """Test formatting error for QMessageBox."""
-        error = DXComError(
-            category=ErrorCategory.MEMORY_ERROR,
-            exit_code=5,
-            message="OOM",
-            user_message="Out of memory during compilation",
-            suggestions=["Close other apps", "Use smaller model", "Add more RAM"],
-        )
-        
-        title, message = format_error_for_messagebox(error)
-        
-        self.assertEqual(title, "Compilation Failed")
-        self.assertIn("Out of memory", message)
-        self.assertIn("Exit code: 5", message)
-        self.assertIn("Suggestions:", message)
-        self.assertIn("Close other apps", message)
-        self.assertIn("Use smaller model", message)
-        # Should show only top 3 suggestions
-        self.assertIn("Add more RAM", message)
 
 
 class TestErrorSuggestions(unittest.TestCase):

@@ -4,7 +4,7 @@ DXCom GUI - Source package.
 from .main_window import MainWindow
 from .dxcom_detector import check_dxcom_available, get_dxcom_status
 from .error_handler import DXComError, DXComErrorParser, ErrorCategory
-from .error_dialog import ErrorDialog, show_error_dialog, show_simple_error
+from .error_dialog import ErrorDialog, show_error_dialog
 from .environment_validator import (
     validate_environment, 
     validate_for_compilation,
@@ -25,7 +25,6 @@ __all__ = [
     'ErrorCategory',
     'ErrorDialog',
     'show_error_dialog',
-    'show_simple_error',
     'validate_environment',
     'validate_for_compilation',
     'quick_environment_check',

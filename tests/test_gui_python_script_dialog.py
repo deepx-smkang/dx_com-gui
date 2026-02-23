@@ -195,3 +195,68 @@ class TestPythonSyntaxHighlighter:
         assert 'return' in hl.keywords
         assert 'True' in hl.keywords
         assert 'None' in hl.keywords
+
+    def test_highlight_triple_double_quoted_string(self, qtbot):
+        """Covers line 64: setFormat inside triple-double-quote loop."""
+        from PySide6.QtWidgets import QTextEdit
+        editor = QTextEdit()
+        qtbot.addWidget(editor)
+        hl = PythonSyntaxHighlighter(editor.document())
+        # Direct call to highlightBlock with triple-double-quoted string
+        hl.highlightBlock('x = """hello world"""')
+
+    def test_highlight_triple_single_quoted_string(self, qtbot):
+        """Covers line 67: setFormat inside triple-single-quote loop."""
+        from PySide6.QtWidgets import QTextEdit
+        editor = QTextEdit()
+        qtbot.addWidget(editor)
+        hl = PythonSyntaxHighlighter(editor.document())
+        hl.highlightBlock("x = '''hello world'''")
+
+    def test_highlight_double_quoted_string(self, qtbot):
+        """Covers line 71: setFormat inside double-quote string loop."""
+        from PySide6.QtWidgets import QTextEdit
+        editor = QTextEdit()
+        qtbot.addWidget(editor)
+        hl = PythonSyntaxHighlighter(editor.document())
+        hl.highlightBlock('path = "model.onnx"')
+
+    def test_highlight_raw_double_quoted_string(self, qtbot):
+        """Covers line 78: setFormat inside r"..." raw string loop."""
+        from PySide6.QtWidgets import QTextEdit
+        editor = QTextEdit()
+        qtbot.addWidget(editor)
+        hl = PythonSyntaxHighlighter(editor.document())
+        hl.highlightBlock('path = r"C:\\models\\model.onnx"')
+
+    def test_highlight_raw_single_quoted_string(self, qtbot):
+        """Covers line 81: setFormat inside r'...' raw string loop."""
+        from PySide6.QtWidgets import QTextEdit
+        editor = QTextEdit()
+        qtbot.addWidget(editor)
+        hl = PythonSyntaxHighlighter(editor.document())
+        hl.highlightBlock("path = r'C:\\models\\model.onnx'")
+
+    def test_highlight_function_definition(self, qtbot):
+        """Covers lines 97-99: setFormat inside def function loop."""
+        from PySide6.QtWidgets import QTextEdit
+        editor = QTextEdit()
+        qtbot.addWidget(editor)
+        hl = PythonSyntaxHighlighter(editor.document())
+        hl.highlightBlock('def compile_model(path):')
+
+    def test_highlight_number_literal(self, qtbot):
+        """Covers line 110: setFormat inside number literal loop."""
+        from PySide6.QtWidgets import QTextEdit
+        editor = QTextEdit()
+        qtbot.addWidget(editor)
+        hl = PythonSyntaxHighlighter(editor.document())
+        hl.highlightBlock('timeout = 42')
+
+    def test_highlight_float_literal(self, qtbot):
+        """Covers line 110: setFormat inside number literal loop (float)."""
+        from PySide6.QtWidgets import QTextEdit
+        editor = QTextEdit()
+        qtbot.addWidget(editor)
+        hl = PythonSyntaxHighlighter(editor.document())
+        hl.highlightBlock('scale = 3.14')

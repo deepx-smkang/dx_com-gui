@@ -13,6 +13,7 @@ import sys
 import os
 import shutil
 import subprocess
+import tempfile
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -380,8 +381,6 @@ class EnvironmentValidator:
     def _check_temp_directory(self) -> ValidationResult:
         """Check if temporary directory is accessible."""
         try:
-            import tempfile
-            
             temp_dir = tempfile.gettempdir()
             
             # Check if temp directory exists and is writable

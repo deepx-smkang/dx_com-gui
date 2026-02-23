@@ -6,6 +6,7 @@ as a subprocess. It uses QThread for async execution and emits signals for
 real-time progress updates, output capture, and completion/error handling.
 """
 import subprocess
+import sys
 import os
 import time
 import re
@@ -101,7 +102,6 @@ class DXComExecutor(QThread):
             # Build command line arguments
             if self.python_script_path:
                 # Python mode: execute the Python script
-                import sys
                 cmd = [sys.executable, self.python_script_path]
             else:
                 # CLI mode: execute dxcom command

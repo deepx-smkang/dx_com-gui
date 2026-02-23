@@ -1,10 +1,10 @@
-"""
-JSON Configuration Editor Dialog.
+"""JSON Configuration Editor Dialog.
 
 Provides a separate window to view and edit JSON configuration files
 for DXCom compiler with syntax validation.
 """
 import json
+import re
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QPushButton,
     QTextEdit, QLabel, QMessageBox
@@ -38,9 +38,6 @@ class JsonSyntaxHighlighter(QSyntaxHighlighter):
     
     def highlightBlock(self, text):
         """Apply syntax highlighting to a block of text."""
-        # Highlight JSON keys (quoted strings followed by colon)
-        import re
-        
         # Keys: "key":
         for match in re.finditer(r'"([^"]+)"\s*:', text):
             self.setFormat(match.start(), match.end() - match.start(), self.key_format)

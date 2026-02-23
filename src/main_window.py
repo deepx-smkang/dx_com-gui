@@ -192,19 +192,13 @@ class MainWindow(QMainWindow):
         icon_sizes = ['deepx_16.png', 'deepx_32.png', 'deepx_64.png', 'deepx_128.png']
         
         # Icons live in src/resources/ (installed as src.resources package data)
-        base_paths = [
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources'),
-        ]
-        
-        for base_path in base_paths:
-            for icon_file in icon_sizes:
-                icon_path = os.path.join(base_path, icon_file)
-                if os.path.exists(icon_path):
-                    icon.addFile(icon_path)
-            
-            if not icon.isNull():
-                self.setWindowIcon(icon)
-                return
+        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources')
+        for icon_file in icon_sizes:
+            icon_path = os.path.join(base_path, icon_file)
+            if os.path.exists(icon_path):
+                icon.addFile(icon_path)
+        if not icon.isNull():
+            self.setWindowIcon(icon)
     
     def _create_header(self):
         """Create the header section with logo and title."""
@@ -440,24 +434,6 @@ class MainWindow(QMainWindow):
         self._update_command_preview()
         self._update_compile_button_state()
 
-    def _on_data_source_changed(self):
-        """Handle data source change (config vs dataloader) — legacy radio path."""
-        if self.config_src_btn and self.config_src_btn.isChecked():
-            self.python_data_source = "config"
-            self.set_status_message("Data source: Config file", 2000)
-        else:
-            self.python_data_source = "dataloader"
-            self.set_status_message("Data source: PyTorch DataLoader", 2000)
-        
-        # Update config field enable/disable
-        self._update_config_field_state()
-        
-        # Update command preview
-        self._update_command_preview()
-        
-        # Update button states
-        self._update_compile_button_state()
-    
     def _update_config_field_state(self):
         """Enable/disable config file selection based on mode and data source."""
         if not self.config_path_field or not self.browse_config_button:

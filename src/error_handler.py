@@ -7,7 +7,7 @@ error displays.
 """
 import re
 from enum import Enum
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, List
 from dataclasses import dataclass
 
 
@@ -388,32 +388,3 @@ def format_error_for_display(error: DXComError, include_technical: bool = True) 
     
     return "\n".join(lines)
 
-
-def format_error_for_messagebox(error: DXComError) -> Tuple[str, str]:
-    """
-    Format error for QMessageBox display.
-    
-    Args:
-        error: DXComError object
-        
-    Returns:
-        Tuple of (title, message) for QMessageBox
-    """
-    title = "Compilation Failed"
-    
-    # Build message
-    message_parts = [error.user_message]
-    
-    if error.exit_code is not None:
-        message_parts.append(f"\nExit code: {error.exit_code}")
-    
-    if error.suggestions:
-        message_parts.append("\n\nSuggestions:")
-        for suggestion in error.suggestions[:3]:  # Show top 3 suggestions
-            message_parts.append(f"  • {suggestion}")
-    
-    message_parts.append("\n\nCheck the output log for more details.")
-    
-    message = "\n".join(message_parts)
-    
-    return title, message

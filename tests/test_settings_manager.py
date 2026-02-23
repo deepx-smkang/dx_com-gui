@@ -55,7 +55,7 @@ class TestSettingsManager(unittest.TestCase):
         """Test persistence of settings."""
         self.manager.set('theme', 'dark')
         self.manager.set('auto_save_preset', True)
-        self.manager.save_settings()
+        self.manager._save_settings()
         
         # Create new manager instance to load settings
         new_manager = SettingsManager()
@@ -114,16 +114,11 @@ class TestSettingsManager(unittest.TestCase):
     def test_get_all_settings(self):
         """Test retrieving all settings at once."""
         self.manager.set('theme', 'dark')
-        all_settings = self.manager.get_all_settings()
+        all_settings = self.manager.get_all()
         
         self.assertIn('theme', all_settings)
         self.assertEqual(all_settings['theme'], 'dark')
         self.assertIn('max_recent_files', all_settings)
-
-    def test_get_all_alias(self):
-        """Test that get_all() and get_all_settings() return the same data."""
-        self.manager.set('theme', 'dark')
-        self.assertEqual(self.manager.get_all(), self.manager.get_all_settings())
 
     def test_get_default_value(self):
         """Test get() with a default value fallback."""
@@ -163,13 +158,13 @@ class TestSettingsManager(unittest.TestCase):
             'default_output_path', 'default_json_path', 'default_dataset_path',
             'max_recent_files', 'show_tooltips', 'confirm_overwrite', 'auto_scroll_logs'
         ]
-        all_settings = self.manager.get_all_settings()
+        all_settings = self.manager.get_all()
         for key in expected_keys:
             self.assertIn(key, all_settings, f"Missing default key: {key}")
 
-    def test_get_all_settings_is_copy(self):
-        """Test that get_all_settings() returns a copy, not a reference."""
-        all_settings = self.manager.get_all_settings()
+    def test_get_all_is_copy(self):
+        """Test that get_all() returns a copy, not a reference."""
+        all_settings = self.manager.get_all()
         all_settings['theme'] = 'mutated'
         self.assertEqual(self.manager.get('theme'), 'light')  # Original unchanged
 

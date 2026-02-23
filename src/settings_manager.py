@@ -90,14 +90,6 @@ class SettingsManager:
         """Get all settings."""
         return self.settings.copy()
 
-    def get_all_settings(self) -> Dict[str, Any]:
-        """Get all settings (public alias for get_all)."""
-        return self.get_all()
-
-    def save_settings(self):
-        """Save settings to file (public alias for _save_settings)."""
-        self._save_settings()
-    
     def update_settings(self, new_settings: Dict[str, Any]):
         """Update multiple settings at once."""
         self.settings.update(new_settings)

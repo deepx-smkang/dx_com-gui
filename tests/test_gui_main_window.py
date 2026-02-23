@@ -1192,3 +1192,1544 @@ class TestMenuBar:
 
     def test_theme_action_exists(self, win):
         assert win.theme_action is not None
+
+
+# ===========================================================================
+# COVERAGE BOOST — New test classes targeting uncovered lines
+# ===========================================================================
+
+import time as _time_module
+
+
+def _make_mock_executor():
+    """Create a mock DXComExecutor with signal-like attributes."""
+    ex = MagicMock()
+    ex.isRunning.return_value = False
+    return ex
+
+
+def _make_validation(overall_valid=True, errors=None, warnings=None, checks=None):
+    """Create a mock EnvironmentValidation result."""
+    v = MagicMock()
+    v.overall_valid = overall_valid
+    v.errors = errors or []
+    v.warnings = warnings or []
+    v.checks = checks or []
+    return v
+
+
+def _make_err(msg="Test error"):
+    e = MagicMock()
+    e.message = msg
+    return e
+
+
+# ---------------------------------------------------------------------------
+# _update_config_field_state null-guard (line 464)
+# ---------------------------------------------------------------------------
+
+class TestUpdateConfigFieldNullGuard:
+
+    def test_update_config_field_null_guard(self, win):
+        """When config_path_field is None, _update_config_field_state returns early."""
+        orig = win.config_path_field
+        win.config_path_field = None
+        win._update_config_field_state()  # Must not raise
+        win.config_path_field = orig
+
+
+# ---------------------------------------------------------------------------
+# _on_browse_dataset_path  (lines 884-891)
+# ---------------------------------------------------------------------------
+
+class TestBrowseDatasetPath:
+
+    def test_browse_sets_field_text(self, tmp_path, win):
+        with patch('src.main_window.QFileDialog.getExistingDirectory',
+                   return_value=str(tmp_path)):
+            win._on_browse_dataset_path()
+        assert win.dataset_path_field.text() == str(tmp_path)
+
+    def test_browse_cancelled_leaves_field_unchanged(self, win):
+        win.dataset_path_field.setText("/original")
+        with patch('src.main_window.QFileDialog.getExistingDirectory',
+                   return_value=""):
+            win._on_browse_dataset_path()
+        assert win.dataset_path_field.text() == "/original"
+
+
+# ---------------------------------------------------------------------------
+# _write_default_loader_to_config — preprocessing fields  (lines 915-997)
+# ---------------------------------------------------------------------------
+
+class TestWriteDefaultLoaderPreprocessings:
+
+    def test_writes_preprocessing_fields(self, tmp_path, win):
+        cfg_file = tmp_path / "model.json"
+        cfg_file.write_text(json.dumps({"default_loader": {}}))
+        win.config_file_path = str(cfg_file)
+
+        win.dataset_path_field.setText("/data")
+        win.file_extensions_field.setText('["jpg","png"]')
+        win.resize_field.setText('[224, 224]')
+        win.convert_color_combo.setCurrentIndex(1)  # pick non-blank
+        win._write_default_loader_to_config()
+
+        updated = json.loads(cfg_file.read_text())
+        dl = updated.get("default_loader", {})
+        assert dl.get("dataset_path") == "/data"
+        assert "preprocessings" in dl
+
+    def test_writes_all_numeric_fields(self, tmp_path, win):
+        cfg_file = tmp_path / "model.json"
+        cfg_file.write_text(json.dumps({"default_loader": {}}))
+        win.config_file_path = str(cfg_file)
+
+        win.centercrop_field.setText('[224, 224]')
+        win.transpose_field.setText('[2, 0, 1]')
+        win.expand_dim_field.setText('[0]')
+        win.normalize_field.setText('{"mean": [0.485]}')
+        win.mul_field.setText('255')
+        win.add_field.setText('0')
+        win.subtract_field.setText('0')
+        win.div_field.setText('255')
+        win._write_default_loader_to_config()
+
+        updated = json.loads(cfg_file.read_text())
+        dl = updated.get("default_loader", {})
+        assert "preprocessings" in dl
+
+    def test_handles_malformed_json_fields_gracefully(self, tmp_path, win):
+        cfg_file = tmp_path / "model.json"
+        cfg_file.write_text(json.dumps({"default_loader": {}}))
+        win.config_file_path = str(cfg_file)
+
+        win.resize_field.setText('not-valid-json')
+        win._write_default_loader_to_config()  # Must not raise
+
+
+# ---------------------------------------------------------------------------
+# _load_default_loader_from_config — full preprocessing section  (lines 1037-1081)
+# ---------------------------------------------------------------------------
+
+class TestLoadDefaultLoaderPreprocessings:
+
+    def test_populates_all_preprocessing_fields(self, tmp_path, win):
+        cfg = {
+            "default_loader": {
+                "dataset_path": "/data",
+                "file_extensions": ["jpg"],
+                "preprocessings": [
+                    {"convertColor": {"form": "RGB2BGR"}},  # valid combo value
+                    {"resize": [224, 224]},
+                    {"centercrop": [224, 224]},
+                    {"transpose": [2, 0, 1]},
+                    {"expandDim": [0]},
+                    {"normalize": {"mean": [0.485]}},
+                    {"mul": 255},
+                    {"add": 0},
+                    {"subtract": 0},
+                    {"div": 255},
+                ]
+            }
+        }
+        f = tmp_path / "cfg.json"
+        f.write_text(json.dumps(cfg))
+        win.config_file_path = str(f)
+        win._load_default_loader_from_config()
+
+        assert win.dataset_path_field.text() == "/data"
+        assert win.resize_field.text() != ""
+
+
+# ---------------------------------------------------------------------------
+# _check_dxcom_availability  (lines 1413-1445)
+# ---------------------------------------------------------------------------
+
+class TestCheckDxcomAvailability:
+
+    def test_dxcom_available_valid_environment(self, win):
+        good_info = MagicMock()
+        good_info.is_valid.return_value = True
+        good_info.path = '/usr/bin/dxcom'
+        good_info.version = '1.0.0'
+        good_val = _make_validation(overall_valid=True)
+
+        with patch('src.main_window.check_dxcom_available', return_value=good_info), \
+             patch('src.main_window.validate_environment', return_value=good_val), \
+             patch('src.main_window.get_dxcom_status', return_value=('ok', 'dxcom ready')):
+            win._check_dxcom_availability()
+
+        assert win.dxcom_available is True
+
+    def test_dxcom_available_env_with_warnings(self, win):
+        good_info = MagicMock()
+        good_info.is_valid.return_value = True
+        warn_val = _make_validation(overall_valid=True, warnings=[_make_err("Low mem")])
+
+        with patch('src.main_window.check_dxcom_available', return_value=good_info), \
+             patch('src.main_window.validate_environment', return_value=warn_val), \
+             patch('src.main_window.get_dxcom_status', return_value=('ok', 'dxcom ready')), \
+             patch('src.main_window.QMessageBox.warning'):
+            win._check_dxcom_availability()
+
+        assert win.dxcom_available is True
+
+    def test_dxcom_available_env_invalid(self, win):
+        good_info = MagicMock()
+        good_info.is_valid.return_value = True
+        bad_val = _make_validation(overall_valid=False, errors=[_make_err("env broken")])
+
+        with patch('src.main_window.check_dxcom_available', return_value=good_info), \
+             patch('src.main_window.validate_environment', return_value=bad_val), \
+             patch('src.main_window.QMessageBox.critical'):
+            win._check_dxcom_availability()
+
+        assert win.dxcom_available is False
+
+    def test_dxcom_not_available(self, win):
+        bad_info = MagicMock()
+        bad_info.is_valid.return_value = False
+        bad_info.error_message = "dxcom not found"
+
+        with patch('src.main_window.check_dxcom_available', return_value=bad_info), \
+             patch('src.main_window.QMessageBox.warning'):
+            win._check_dxcom_availability()
+
+        assert win.dxcom_available is False
+
+
+# ---------------------------------------------------------------------------
+# _on_compile_clicked  (lines 1562-1600)
+# ---------------------------------------------------------------------------
+
+class TestOnCompileClicked:
+
+    def test_validation_fails_shows_error(self, win):
+        bad = _make_validation(overall_valid=False, errors=[_make_err("broken")])
+        with patch('src.main_window.validate_for_compilation', return_value=bad), \
+             patch('src.main_window.QMessageBox.critical') as mock_crit:
+            win._on_compile_clicked()
+        mock_crit.assert_called_once()
+
+    def test_validation_fails_with_warnings_listed(self, win):
+        bad = _make_validation(overall_valid=False,
+                               errors=[_make_err("err")],
+                               warnings=[_make_err("warn")])
+        with patch('src.main_window.validate_for_compilation', return_value=bad), \
+             patch('src.main_window.QMessageBox.critical') as mock_crit:
+            win._on_compile_clicked()
+        mock_crit.assert_called_once()
+
+    def test_validation_ok_starts_compilation(self, win, tmp_path):
+        good = _make_validation()
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "cli"  # fix to CLI so compile() is called
+        mock_ex = _make_mock_executor()
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile.return_value = mock_ex
+
+        with patch('src.main_window.validate_for_compilation', return_value=good):
+            win._on_compile_clicked()
+
+        assert win.current_executor is mock_ex
+
+    def test_validation_warns_user_confirms(self, win, tmp_path):
+        warn = _make_validation(overall_valid=True, warnings=[_make_err("low mem")])
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "cli"
+        mock_ex = _make_mock_executor()
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile.return_value = mock_ex
+
+        with patch('src.main_window.validate_for_compilation', return_value=warn), \
+             patch('src.main_window.QMessageBox.warning',
+                   return_value=QMessageBox.StandardButton.Yes):
+            win._on_compile_clicked()
+
+        assert win.current_executor is mock_ex
+
+    def test_validation_warns_user_cancels(self, win):
+        warn = _make_validation(overall_valid=True, warnings=[_make_err("warn")])
+        with patch('src.main_window.validate_for_compilation', return_value=warn), \
+             patch('src.main_window.QMessageBox.warning',
+                   return_value=QMessageBox.StandardButton.No):
+            win._on_compile_clicked()
+
+        assert win.current_executor is None
+
+
+# ---------------------------------------------------------------------------
+# _start_compilation routing  (lines 1605-1628)
+# ---------------------------------------------------------------------------
+
+class TestStartCompilation:
+
+    def test_routes_to_cli_in_cli_mode(self, win, tmp_path):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "cli"
+        mock_ex = _make_mock_executor()
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile.return_value = mock_ex
+
+        win._start_compilation()
+
+        win.dxcom_wrapper.compile.assert_called_once()
+        assert win.current_executor is mock_ex
+
+    def test_routes_to_python_in_python_mode(self, win, tmp_path):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "python"
+        win.saved_python_script_path = None
+        mock_ex = _make_mock_executor()
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile_with_python.return_value = mock_ex
+
+        win._start_compilation()
+
+        win.dxcom_wrapper.compile_with_python.assert_called_once()
+
+    def test_routes_to_batch_when_batch_mode(self, win, tmp_path):
+        onnx1 = _make_onnx(tmp_path, "m1.onnx")
+        onnx2 = _make_onnx(tmp_path, "m2.onnx")
+        win.batch_mode = True
+        win.batch_files = [onnx1, onnx2]
+        win.output_model_path = str(tmp_path)
+        mock_ex = _make_mock_executor()
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile.return_value = mock_ex
+
+        win._start_compilation()
+
+        win.dxcom_wrapper.compile.assert_called()
+
+    def test_clears_log_on_start(self, win, tmp_path):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "cli"
+        win.log_text_area.setPlainText("old log content")
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile.return_value = _make_mock_executor()
+
+        win._start_compilation()
+
+        assert win.log_text_area.toPlainText() == ""
+
+
+# ---------------------------------------------------------------------------
+# _apply_calib_to_config with file present  (lines 1649-1650)
+# ---------------------------------------------------------------------------
+
+class TestApplyCalibToConfigWithFile:
+
+    def test_writes_calib_to_file_and_removes_keys(self, tmp_path, win):
+        cfg = {"calibration_method": "ema", "calibration_num": 100}
+        f = tmp_path / "cfg.json"
+        f.write_text(json.dumps(cfg))
+
+        options = {
+            'config_path': str(f),
+            'calib_method': 'minmax',
+            'calib_num': 50,
+            'opt_level': 1,
+        }
+        result = win._apply_calib_to_config(options)
+
+        assert 'calib_method' not in result
+        assert 'calib_num' not in result
+        updated = json.loads(f.read_text())
+        assert updated['calibration_method'] == 'minmax'
+        assert updated['calibration_num'] == 50
+
+
+# ---------------------------------------------------------------------------
+# _run_cli_compilation  (lines 1660-1689)
+# ---------------------------------------------------------------------------
+
+class TestRunCliCompilation:
+
+    def test_creates_executor_and_starts(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        mock_ex = _make_mock_executor()
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile.return_value = mock_ex
+
+        opts = win.get_compiler_options()
+        win._run_cli_compilation(opts)
+
+        win.dxcom_wrapper.compile.assert_called_once()
+        assert win.current_executor is mock_ex
+        mock_ex.start.assert_called_once()
+
+    def test_cancel_button_becomes_visible(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile.return_value = _make_mock_executor()
+
+        opts = win.get_compiler_options()
+        win._run_cli_compilation(opts)
+
+        assert not win.cancel_button.isHidden()
+        assert not win.compile_button.isEnabled()
+
+
+# ---------------------------------------------------------------------------
+# _run_python_compilation  (lines 1693-1733)
+# ---------------------------------------------------------------------------
+
+class TestRunPythonCompilation:
+
+    def test_generates_temp_script_when_no_saved(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.saved_python_script_path = None
+        mock_ex = _make_mock_executor()
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile_with_python.return_value = mock_ex
+
+        opts = win.get_compiler_options()
+        win._run_python_compilation(opts)
+
+        win.dxcom_wrapper.compile_with_python.assert_called_once()
+        assert win.current_executor is mock_ex
+        mock_ex.start.assert_called_once()
+
+    def test_uses_saved_script_when_set(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        script = tmp_path / "compile.py"
+        script.write_text("import dx_com")
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.saved_python_script_path = str(script)
+        mock_ex = _make_mock_executor()
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile_with_python.return_value = mock_ex
+
+        opts = win.get_compiler_options()
+        win._run_python_compilation(opts)
+
+        call_kwargs = win.dxcom_wrapper.compile_with_python.call_args
+        assert str(script) in str(call_kwargs)
+
+
+# ---------------------------------------------------------------------------
+# _generate_python_script_content  (lines 1737-1886)
+# ---------------------------------------------------------------------------
+
+class TestGeneratePythonScriptContent:
+
+    def test_generates_config_mode_script(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.config_file_path = str(tmp_path / "cfg.json")
+        win.python_data_source = "config"
+
+        opts = win.get_compiler_options()
+        content = win._generate_python_script_content(opts)
+
+        assert 'import dx_com' in content
+        assert 'dx_com.compile' in content
+
+    def test_generates_dataloader_mode_script(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.python_data_source = "dataloader"
+
+        opts = win.get_compiler_options()
+        content = win._generate_python_script_content(opts)
+
+        assert 'DataLoader' in content
+        assert 'dataloader=dataloader' in content
+
+    def test_includes_input_output_nodes(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.python_data_source = "config"
+        win.compile_input_nodes_field.setText("node1,node2")
+        win.compile_output_nodes_field.setText("out1")
+
+        opts = win.get_compiler_options()
+        content = win._generate_python_script_content(opts)
+
+        assert 'node1' in content
+        assert 'out1' in content
+
+    def test_includes_valid_enhanced_scheme(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.python_data_source = "config"
+        win.enhanced_scheme_field.setText('{"DXQ-P0": {"alpha": 0.5}}')
+
+        opts = win.get_compiler_options()
+        content = win._generate_python_script_content(opts)
+
+        assert 'enhanced_scheme' in content
+
+    def test_handles_invalid_enhanced_scheme(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.python_data_source = "config"
+        win.enhanced_scheme_field.setText('not valid json')
+
+        opts = win.get_compiler_options()
+        content = win._generate_python_script_content(opts)
+
+        assert 'Invalid JSON format' in content
+
+
+# ---------------------------------------------------------------------------
+# Batch compilation  (lines 1888-1952)
+# ---------------------------------------------------------------------------
+
+class TestBatchCompilationFlow:
+
+    def test_start_batch_sets_running_status(self, tmp_path, win):
+        onnx1 = _make_onnx(tmp_path, "a.onnx")
+        onnx2 = _make_onnx(tmp_path, "b.onnx")
+        win.batch_mode = True
+        win.batch_files = [onnx1, onnx2]
+        win.output_model_path = str(tmp_path)
+        mock_ex = _make_mock_executor()
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile.return_value = mock_ex
+
+        win._start_batch_compilation()
+
+        assert win.batch_current_index == 0
+        assert not win.compile_button.isEnabled()
+        assert not win.cancel_button.isHidden()
+        mock_ex.start.assert_called()
+
+    def test_compile_next_batch_calls_compile(self, tmp_path, win):
+        onnx1 = _make_onnx(tmp_path, "a.onnx")
+        onnx2 = _make_onnx(tmp_path, "b.onnx")
+        win.batch_files = [onnx1, onnx2]
+        win.batch_current_index = 0
+        win.batch_success_count = 0
+        win.batch_failed_count = 0
+        win.output_model_path = str(tmp_path)
+        mock_ex = _make_mock_executor()
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile.return_value = mock_ex
+
+        win._compile_next_batch_file()
+
+        win.dxcom_wrapper.compile.assert_called()
+
+    def test_compile_next_batch_finishes_when_done(self, tmp_path, win):
+        win.batch_files = [str(tmp_path / "a.onnx")]
+        win.batch_current_index = 1  # beyond list
+        win.batch_success_count = 1
+        win.batch_failed_count = 0
+        win.compilation_start_time = None
+        win.compile_button.setEnabled(False)
+
+        with patch('src.main_window.QMessageBox.information'):
+            win._compile_next_batch_file()
+
+        assert win.compile_button.isEnabled()
+
+
+# ---------------------------------------------------------------------------
+# _on_batch_file_finished / _finish_batch_compilation  (lines 1964-2027)
+# ---------------------------------------------------------------------------
+
+class TestBatchFileFinished:
+
+    def test_success_increments_success_count(self, tmp_path, win):
+        onnx1 = _make_onnx(tmp_path, "a.onnx")
+        win.batch_files = [onnx1]
+        win.batch_current_index = 0
+        win.batch_success_count = 0
+        win.batch_failed_count = 0
+        win.output_model_path = str(tmp_path)
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile.return_value = _make_mock_executor()
+
+        with patch('src.main_window.QMessageBox.information'):
+            win._on_batch_file_finished(True, "ok")
+
+        assert win.batch_success_count == 1
+
+    def test_failure_increments_fail_count(self, tmp_path, win):
+        onnx1 = _make_onnx(tmp_path, "a.onnx")
+        win.batch_files = [onnx1]
+        win.batch_current_index = 0
+        win.batch_success_count = 0
+        win.batch_failed_count = 0
+        win.output_model_path = str(tmp_path)
+        win.dxcom_wrapper = MagicMock()
+        win.dxcom_wrapper.compile.return_value = _make_mock_executor()
+
+        with patch('src.main_window.QMessageBox.warning'):
+            win._on_batch_file_finished(False, "error")
+
+        assert win.batch_failed_count == 1
+
+    def test_finish_batch_all_success(self, tmp_path, win):
+        win.batch_files = [str(tmp_path / "a.onnx")]
+        win.batch_current_index = 1
+        win.batch_success_count = 1
+        win.batch_failed_count = 0
+        win.compilation_start_time = None
+        win.compile_button.setEnabled(False)
+
+        with patch('src.main_window.QMessageBox.information') as mock_info:
+            win._finish_batch_compilation()
+
+        mock_info.assert_called_once()
+        assert win.compile_button.isEnabled()
+
+    def test_finish_batch_with_failures(self, tmp_path, win):
+        win.batch_files = [str(tmp_path / "a.onnx")]
+        win.batch_current_index = 1
+        win.batch_success_count = 0
+        win.batch_failed_count = 1
+        win.compilation_start_time = None
+        win.compile_button.setEnabled(False)
+
+        with patch('src.main_window.QMessageBox.warning') as mock_warn:
+            win._finish_batch_compilation()
+
+        mock_warn.assert_called_once()
+
+    def test_finish_batch_with_short_duration(self, tmp_path, win):
+        win.batch_files = [str(tmp_path / "a.onnx")]
+        win.batch_current_index = 1
+        win.batch_success_count = 1
+        win.batch_failed_count = 0
+        win.compilation_start_time = _time_module.time() - 5
+        win.compile_button.setEnabled(False)
+
+        with patch('src.main_window.QMessageBox.information'):
+            win._finish_batch_compilation()
+
+        assert win.batch_mode is False
+
+    def test_finish_batch_with_long_duration(self, tmp_path, win):
+        win.batch_files = [str(tmp_path / "a.onnx")]
+        win.batch_current_index = 1
+        win.batch_success_count = 1
+        win.batch_failed_count = 0
+        win.compilation_start_time = _time_module.time() - 130  # > 60s
+        win.compile_button.setEnabled(False)
+
+        with patch('src.main_window.QMessageBox.information'):
+            win._finish_batch_compilation()
+
+        assert not win.batch_mode
+
+
+# ---------------------------------------------------------------------------
+# _on_compilation_finished success with timing  (lines 2099-2105)
+# ---------------------------------------------------------------------------
+
+class TestCompilationFinishedTiming:
+
+    def test_success_with_short_duration(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.compilation_start_time = _time_module.time() - 5
+        win.compile_button.setEnabled(False)
+        win.cancel_button.setVisible(True)
+
+        with patch('src.main_window.QMessageBox.information'):
+            win._on_compilation_finished(True, "Compilation complete")
+
+        assert win.compile_button.isEnabled()
+
+    def test_success_with_long_duration(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.compilation_start_time = _time_module.time() - 130
+        win.compile_button.setEnabled(False)
+        win.cancel_button.setVisible(True)
+
+        with patch('src.main_window.QMessageBox.information'):
+            win._on_compilation_finished(True, "done")
+
+        assert win.compile_button.isEnabled()
+
+
+# ---------------------------------------------------------------------------
+# _on_cancel_clicked  (lines 2132-2148)
+# ---------------------------------------------------------------------------
+
+class TestOnCancelClicked:
+
+    def test_cancel_when_running_and_confirmed(self, win):
+        mock_ex = _make_mock_executor()
+        mock_ex.isRunning.return_value = True
+        win.current_executor = mock_ex
+        win.cancel_button.setEnabled(True)
+        win.cancel_button.setText("Cancel")
+
+        with patch('src.main_window.QMessageBox.question',
+                   return_value=QMessageBox.StandardButton.Yes):
+            win._on_cancel_clicked()
+
+        mock_ex.stop.assert_called_once()
+        assert not win.cancel_button.isEnabled()
+        assert win.cancel_button.text() == "Cancelling..."
+
+    def test_cancel_when_running_but_user_declines(self, win):
+        mock_ex = _make_mock_executor()
+        mock_ex.isRunning.return_value = True
+        win.current_executor = mock_ex
+
+        with patch('src.main_window.QMessageBox.question',
+                   return_value=QMessageBox.StandardButton.No):
+            win._on_cancel_clicked()
+
+        mock_ex.stop.assert_not_called()
+
+    def test_cancel_when_executor_not_running(self, win):
+        mock_ex = _make_mock_executor()
+        mock_ex.isRunning.return_value = False
+        win.current_executor = mock_ex
+
+        win._on_cancel_clicked()
+
+        mock_ex.stop.assert_not_called()
+
+    def test_cancel_with_no_executor(self, win):
+        win.current_executor = None
+        win._on_cancel_clicked()  # Must not raise
+
+
+# ---------------------------------------------------------------------------
+# _on_browse_input_file  (lines 2153-2190)
+# ---------------------------------------------------------------------------
+
+class TestOnBrowseInputFile:
+
+    def test_browse_sets_input_path(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        with patch('src.main_window.QFileDialog.getOpenFileName',
+                   return_value=(onnx, "ONNX Files")):
+            win._on_browse_input_file()
+
+        assert win.input_model_path == onnx
+        assert win.input_path_field.text() == onnx
+
+    def test_browse_adds_to_recent_files(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        with patch('src.main_window.QFileDialog.getOpenFileName',
+                   return_value=(onnx, "")):
+            win._on_browse_input_file()
+
+        assert onnx in win.settings_manager.get_recent_files()
+
+    def test_browse_cancelled_leaves_path_unchanged(self, win):
+        win.input_model_path = "/existing.onnx"
+        with patch('src.main_window.QFileDialog.getOpenFileName',
+                   return_value=("", "")):
+            win._on_browse_input_file()
+
+        assert win.input_model_path == "/existing.onnx"
+
+    def test_browse_uses_default_input_path_setting(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.settings_manager.set('default_input_path', str(tmp_path))
+        with patch('src.main_window.QFileDialog.getOpenFileName',
+                   return_value=(onnx, "")):
+            win._on_browse_input_file()
+
+        assert win.input_model_path == onnx
+
+    def test_browse_resets_batch_mode(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.batch_mode = True
+        win.batch_files = [onnx, onnx]
+        with patch('src.main_window.QFileDialog.getOpenFileName',
+                   return_value=(onnx, "")):
+            win._on_browse_input_file()
+
+        assert win.batch_mode is False
+        assert win.batch_files == []
+
+
+# ---------------------------------------------------------------------------
+# _on_browse_config_file  (lines 2194-2240)
+# ---------------------------------------------------------------------------
+
+class TestOnBrowseConfigFile:
+
+    def test_browse_sets_config_path(self, tmp_path, win):
+        cfg = _make_json(tmp_path)
+        with patch('src.main_window.QFileDialog.getOpenFileName',
+                   return_value=(cfg, "JSON Files")):
+            win._on_browse_config_file()
+
+        assert win.config_file_path == cfg
+
+    def test_browse_config_validates_file(self, tmp_path, win):
+        cfg = _make_json(tmp_path)
+        with patch('src.main_window.QFileDialog.getOpenFileName',
+                   return_value=(cfg, "")):
+            win._on_browse_config_file()
+
+        assert win.config_path_field.text() == cfg
+
+    def test_browse_config_cancelled_leaves_unchanged(self, win):
+        win.config_file_path = "/existing.json"
+        with patch('src.main_window.QFileDialog.getOpenFileName',
+                   return_value=("", "")):
+            win._on_browse_config_file()
+
+        assert win.config_file_path == "/existing.json"
+
+    def test_browse_config_syncs_calib_combo_to_minmax(self, tmp_path, win):
+        cfg_data = {"calibration_method": "minmax", "calibration_num": 50}
+        cfg = _make_json(tmp_path, data=cfg_data)
+        with patch('src.main_window.QFileDialog.getOpenFileName',
+                   return_value=(cfg, "")):
+            win._on_browse_config_file()
+
+        assert win.calib_method_combo.currentData() == "minmax"
+        assert win.calib_num_spinbox.value() == 50
+
+
+# ---------------------------------------------------------------------------
+# _on_browse_output_file  (lines 2245-2276)
+# ---------------------------------------------------------------------------
+
+class TestOnBrowseOutputFile:
+
+    def test_browse_sets_valid_output_path(self, tmp_path, win):
+        with patch('src.main_window.QFileDialog.getExistingDirectory',
+                   return_value=str(tmp_path)):
+            win._on_browse_output_file()
+
+        assert win.output_model_path == str(tmp_path)
+        assert win.output_path_field.text() == str(tmp_path)
+
+    def test_browse_cancelled_leaves_unchanged(self, win):
+        win.output_model_path = "/original"
+        with patch('src.main_window.QFileDialog.getExistingDirectory',
+                   return_value=""):
+            win._on_browse_output_file()
+
+        assert win.output_model_path == "/original"
+
+    def test_browse_invalid_path_shows_warning(self, win):
+        with patch('src.main_window.QFileDialog.getExistingDirectory',
+                   return_value="/nonexistent_parent_xyz/sub"), \
+             patch('src.main_window.QMessageBox.warning') as mock_warn:
+            win._on_browse_output_file()
+
+        mock_warn.assert_called_once()
+
+    def test_browse_uses_input_path_dir_as_initial(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = ""
+        with patch('src.main_window.QFileDialog.getExistingDirectory',
+                   return_value=str(tmp_path)) as mock_dlg:
+            win._on_browse_output_file()
+
+        call_args = mock_dlg.call_args[0]
+        assert str(tmp_path) in call_args
+
+
+# ---------------------------------------------------------------------------
+# Validation edge cases (lines 2325, 2332, 2366-2368, 2391-2394, 2427-2461)
+# ---------------------------------------------------------------------------
+
+class TestValidateOutputPathEdgeCases:
+
+    def test_not_writable_dir_returns_error(self, tmp_path, win):
+        with patch('os.access', return_value=False):
+            result = win._validate_output_path(str(tmp_path))
+        assert isinstance(result, str)
+
+    def test_nonexistent_parent_not_writable_returns_error(self, tmp_path, win):
+        nonexistent = str(tmp_path / "new_dir")
+        with patch('os.access', return_value=False):
+            result = win._validate_output_path(nonexistent)
+        assert isinstance(result, str)
+
+
+class TestValidateInputFileEdgeCases:
+
+    def test_not_readable_file_returns_false(self, tmp_path, win):
+        f = tmp_path / "model.onnx"
+        f.write_bytes(b"\x08\x00\x00\x00extra")
+        with patch('os.access', side_effect=lambda p, m: False if m == 4 else True):
+            result = win._validate_input_file(str(f))
+        assert result is False
+
+    def test_directory_input_path_returns_false(self, tmp_path, win):
+        result = win._validate_input_file(str(tmp_path))
+        assert result is False
+
+
+class TestValidateConfigFileEdgeCases:
+
+    def test_config_file_not_readable_returns_false(self, tmp_path, win):
+        f = tmp_path / "cfg.json"
+        f.write_text("{}")
+        with patch('os.access', side_effect=lambda p, m: False if m == 4 else True):
+            result = win._validate_config_file(str(f))
+        assert result is False
+
+    def test_config_general_read_exception_returns_false(self, tmp_path, win):
+        f = tmp_path / "cfg.json"
+        f.write_text("{}")
+        with patch('builtins.open', side_effect=OSError("permission denied")):
+            result = win._validate_config_file(str(f))
+        assert result is False
+
+
+# ---------------------------------------------------------------------------
+# _update_compile_button_state edge cases  (lines 2541-2588)
+# ---------------------------------------------------------------------------
+
+class TestUpdateCompileButtonStateEdges:
+
+    def test_disabled_when_dxcom_not_available(self, win):
+        win.dxcom_available = False
+        win._update_compile_button_state()
+        assert not win.compile_button.isEnabled()
+        assert not win.gen_python_button.isEnabled()
+
+    def test_enabled_in_dataloader_mode_without_config(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.dxcom_available = True
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.config_file_path = ""
+        win.execution_mode = "python"
+        win.python_data_source = "dataloader"
+        win.validation_errors = {}
+        win._update_compile_button_state()
+        assert win.compile_button.isEnabled()
+
+    def test_tooltip_shows_first_validation_error(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.dxcom_available = True
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.config_file_path = "cfg.json"
+        win.execution_mode = "cli"
+        win.validation_errors = {'input': 'fix this error please'}
+        win._update_compile_button_state()
+        assert 'fix this error' in win.compile_button.toolTip()
+
+
+# ---------------------------------------------------------------------------
+# _write_calib_to_config with config set  (lines 2627-2650)
+# ---------------------------------------------------------------------------
+
+class TestWriteCalibToConfigWithFile:
+
+    def test_writes_calib_values_to_json(self, tmp_path, win):
+        cfg = {"name": "model"}
+        f = tmp_path / "cfg.json"
+        f.write_text(json.dumps(cfg))
+        win.config_file_path = str(f)
+        win.calib_method_combo.setCurrentIndex(1)  # minmax
+        win.calib_num_spinbox.setValue(200)
+
+        win._write_calib_to_config()
+
+        updated = json.loads(f.read_text())
+        assert updated.get("calibration_method") == "minmax"
+        assert updated.get("calibration_num") == 200
+
+    def test_on_calib_setting_changed_does_not_raise(self, tmp_path, win):
+        cfg = {"name": "model"}
+        f = tmp_path / "cfg.json"
+        f.write_text(json.dumps(cfg))
+        win.config_file_path = str(f)
+
+        win._on_calib_setting_changed()  # Must not raise
+
+
+# ---------------------------------------------------------------------------
+# _on_edit_config_file  (lines 2659-2675)
+# ---------------------------------------------------------------------------
+
+class TestOnEditConfigFile:
+
+    def test_no_config_shows_warning(self, win):
+        win.config_file_path = ""
+        with patch('src.main_window.QMessageBox.warning') as mock_warn:
+            win._on_edit_config_file()
+        mock_warn.assert_called_once()
+
+    def test_with_config_opens_json_dialog(self, tmp_path, win):
+        cfg = _make_json(tmp_path)
+        win.config_file_path = cfg
+        mock_dlg_instance = MagicMock()
+        with patch('src.json_config_dialog.JsonConfigDialog', return_value=mock_dlg_instance):
+            win._on_edit_config_file()
+        mock_dlg_instance.show.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# _on_check_dxcom_status  (lines 2762, 2771-2813)
+# ---------------------------------------------------------------------------
+
+class TestOnCheckDxcomStatusFull:
+
+    def _good_info(self):
+        info = MagicMock()
+        info.is_valid.return_value = True
+        info.path = '/usr/bin/dxcom'
+        info.version = '1.0.0'
+        return info
+
+    def test_available_all_checks_pass_shows_info(self, win):
+        good_check = MagicMock()
+        good_check.passed = True
+        good_check.severity = "info"
+        good_check.message = "All good"
+        good_val = _make_validation(overall_valid=True, checks=[good_check])
+        good_val.warnings = []
+        good_val.errors = []
+
+        with patch('src.main_window.check_dxcom_available', return_value=self._good_info()), \
+             patch('src.main_window.validate_environment', return_value=good_val), \
+             patch('src.dxcom_detector.refresh_dxcom_detection'), \
+             patch('src.environment_validator.clear_validation_cache'), \
+             patch('src.main_window.QMessageBox.information'):
+            win._on_check_dxcom_status()
+
+        assert win.dxcom_available is True
+
+    def test_available_with_failed_checks_shows_warning(self, win):
+        fail_check = MagicMock()
+        fail_check.passed = False
+        fail_check.severity = "error"
+        fail_check.message = "disk full"
+        bad_val = _make_validation(overall_valid=False,
+                                   errors=[_make_err("disk full")],
+                                   checks=[fail_check])
+        bad_val.warnings = []
+
+        with patch('src.main_window.check_dxcom_available', return_value=self._good_info()), \
+             patch('src.main_window.validate_environment', return_value=bad_val), \
+             patch('src.dxcom_detector.refresh_dxcom_detection'), \
+             patch('src.environment_validator.clear_validation_cache'), \
+             patch('src.main_window.QMessageBox.warning'):
+            win._on_check_dxcom_status()
+
+        assert win.dxcom_available is False
+
+    def test_available_with_warnings_note_shown(self, win):
+        good_val = _make_validation(overall_valid=True, warnings=[_make_err("low mem")])
+        good_val.checks = []
+        good_val.errors = []
+
+        with patch('src.main_window.check_dxcom_available', return_value=self._good_info()), \
+             patch('src.main_window.validate_environment', return_value=good_val), \
+             patch('src.dxcom_detector.refresh_dxcom_detection'), \
+             patch('src.environment_validator.clear_validation_cache'), \
+             patch('src.main_window.QMessageBox.information'):
+            win._on_check_dxcom_status()
+
+        assert win.dxcom_available is True
+
+    def test_dxcom_not_available_shows_warning(self, win):
+        bad_info = MagicMock()
+        bad_info.is_valid.return_value = False
+        bad_info.error_message = "not found"
+        good_val = _make_validation()
+        good_val.checks = []
+
+        with patch('src.main_window.check_dxcom_available', return_value=bad_info), \
+             patch('src.main_window.validate_environment', return_value=good_val), \
+             patch('src.dxcom_detector.refresh_dxcom_detection'), \
+             patch('src.environment_validator.clear_validation_cache'), \
+             patch('src.main_window.QMessageBox.warning') as mock_warn:
+            win._on_check_dxcom_status()
+
+        mock_warn.assert_called()
+        assert win.dxcom_available is False
+
+
+# ---------------------------------------------------------------------------
+# _on_open_batch_files  (lines 2913-2937)
+# ---------------------------------------------------------------------------
+
+class TestOnOpenBatchFiles:
+
+    def test_batch_files_selected_sets_batch_mode(self, tmp_path, win):
+        onnx1 = _make_onnx(tmp_path, "a.onnx")
+        onnx2 = _make_onnx(tmp_path, "b.onnx")
+
+        with patch('src.main_window.QFileDialog.getOpenFileNames',
+                   return_value=([onnx1, onnx2], "ONNX Files")):
+            win._on_open_batch_files()
+
+        assert win.batch_mode is True
+        assert len(win.batch_files) == 2
+        assert "2" in win.compile_button.text()
+
+    def test_batch_cancelled_leaves_mode_unchanged(self, win):
+        with patch('src.main_window.QFileDialog.getOpenFileNames',
+                   return_value=([], "")):
+            win._on_open_batch_files()
+
+        assert win.batch_mode is False
+
+
+# ---------------------------------------------------------------------------
+# _update_tab_styles  (lines 3086-3160)
+# ---------------------------------------------------------------------------
+
+class TestUpdateTabStylesCoverage:
+
+    def test_dark_theme_mode_container_gets_stylesheet(self, win):
+        win._update_tab_styles('dark')
+        assert len(win.mode_btn_container.styleSheet()) > 0
+
+    def test_light_theme_mode_container_gets_stylesheet(self, win):
+        win._update_tab_styles('light')
+        assert len(win.mode_btn_container.styleSheet()) > 0
+
+    def test_data_src_container_also_styled(self, win):
+        win._update_tab_styles('dark')
+        if win.data_src_btn_container:
+            assert len(win.data_src_btn_container.styleSheet()) > 0
+
+    def test_no_container_does_not_crash(self, win):
+        orig = win.mode_btn_container
+        win.mode_btn_container = None
+        win._update_tab_styles('light')  # Must not raise
+        win.mode_btn_container = orig
+
+
+# ---------------------------------------------------------------------------
+# _on_config_path_changed with file path  (lines 2603-2637)
+# ---------------------------------------------------------------------------
+
+class TestOnConfigPathChanged:
+
+    def test_with_valid_json_path_loads_calib(self, tmp_path, win):
+        cfg_data = {"calibration_method": "minmax", "calibration_num": 75}
+        f = tmp_path / "cfg.json"
+        f.write_text(json.dumps(cfg_data))
+        win.config_path_field.setText(str(f))
+        # Trigger manually since the field is read-only normally
+        win._on_config_path_changed()
+        assert win.calib_method_combo.currentData() == "minmax"
+        assert win.calib_num_spinbox.value() == 75
+
+    def test_clearing_path_disables_edit_button(self, win):
+        win.config_path_field.setText("")
+        win._on_config_path_changed()
+        assert not win.edit_config_button.isEnabled()
+
+    def test_exception_in_calib_sync_does_not_raise(self, tmp_path, win):
+        """Lines 2627-2628: exception in calib sync is silently caught."""
+        f = tmp_path / "cfg.json"
+        f.write_text("{}")
+        win.config_path_field.setText(str(f))
+        with patch('builtins.open', side_effect=OSError("read error")):
+            win._on_config_path_changed()  # Must not raise
+
+
+# ===========================================================================
+# COVERAGE REFINEMENT — targeted tests for remaining uncovered lines
+# ===========================================================================
+
+class TestUpdateConfigFieldStateWithConfigSet:
+    """Line 480: edit_config_button enabled when config_file_path is set."""
+
+    def test_edit_button_enabled_when_config_file_set(self, win):
+        win.execution_mode = "cli"
+        win.config_file_path = "/some/config.json"
+        win._update_config_field_state()
+        assert win.edit_config_button.isEnabled()
+
+
+class TestWriteDefaultLoaderExceptionPaths:
+    """Lines 917-918, 939-940: exception handling in preprocessing field parsing."""
+
+    def test_invalid_file_extensions_json_does_not_raise(self, tmp_path, win):
+        """Lines 917-918: malformed file_extensions JSON is silently ignored."""
+        cfg_file = tmp_path / "model.json"
+        cfg_file.write_text(json.dumps({"default_loader": {}}))
+        win.config_file_path = str(cfg_file)
+        win.file_extensions_field.setText('not-valid-json')
+        win._write_default_loader_to_config()  # Must not raise
+
+    def test_invalid_centercrop_json_does_not_raise(self, tmp_path, win):
+        """Lines 939-940: malformed centercrop JSON is silently ignored."""
+        cfg_file = tmp_path / "model.json"
+        cfg_file.write_text(json.dumps({"default_loader": {}}))
+        win.config_file_path = str(cfg_file)
+        win.centercrop_field.setText('invalid{json')
+        win._write_default_loader_to_config()  # Must not raise
+
+
+class TestLoadDefaultLoaderExceptionPath:
+    """Lines 1080-1081: outer exception in _load_default_loader_from_config."""
+
+    def test_exception_in_json_load_is_silently_caught(self, tmp_path, win):
+        f = tmp_path / "cfg.json"
+        f.write_text("{}")
+        win.config_file_path = str(f)
+        with patch('builtins.open', side_effect=OSError("unreadable")):
+            win._load_default_loader_from_config()  # Must not raise
+
+
+class TestApplyCalibToConfigExceptionPath:
+    """Lines 1649-1650: exception when writing to config file in _apply_calib_to_config."""
+
+    def test_write_exception_logs_warning(self, tmp_path, win):
+        cfg = {"calibration_method": "ema"}
+        f = tmp_path / "cfg.json"
+        f.write_text(json.dumps(cfg))
+
+        import builtins
+        real_open = builtins.open
+        call_count = [0]
+
+        def mock_open(path, *args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] <= 1:  # first open (read) succeeds
+                return real_open(path, *args, **kwargs)
+            raise OSError("disk full")  # second open (write) fails
+
+        options = {'config_path': str(f), 'calib_method': 'minmax', 'calib_num': 10}
+        with patch('builtins.open', side_effect=mock_open):
+            result = win._apply_calib_to_config(options)
+        # Should not raise; the exception is caught and logged
+
+
+class TestOnOutputReceivedInfoColor:
+    """Line 2051: 'info' color in _on_output_received."""
+
+    def test_info_line_does_not_raise(self, win):
+        win._on_output_received("info: loading model from disk\n")
+
+    def test_loading_line_uses_info_color(self, win):
+        win._on_output_received("loading model weights...\n")
+
+    def test_starting_line_uses_info_color(self, win):
+        win._on_output_received("starting compilation process\n")
+
+
+class TestBrowseInputFileLastBrowseDir:
+    """Line 2157: uses last_browse_directory when default_input_path is invalid."""
+
+    def test_uses_last_browse_dir_when_no_default(self, tmp_path, win):
+        """Clear default so we hit the else branch (line 2157)."""
+        onnx = _make_onnx(tmp_path)
+        win.settings_manager.settings['default_input_path'] = ''
+        win.last_browse_directory = str(tmp_path)
+        with patch('src.main_window.QFileDialog.getOpenFileName',
+                   return_value=(onnx, "")) as mock_dlg:
+            win._on_browse_input_file()
+
+        call_args = mock_dlg.call_args[0]
+        assert str(tmp_path) in call_args
+
+
+class TestBrowseConfigFileExceptionPath:
+    """Lines 2233-2234: exception in calib sync after selecting config file."""
+
+    def test_exception_in_json_sync_is_silently_caught(self, tmp_path, win):
+        cfg = _make_json(tmp_path)
+        with patch('src.main_window.QFileDialog.getOpenFileName',
+                   return_value=(cfg, "")), \
+             patch('builtins.open', side_effect=OSError("read error")):
+            win._on_browse_config_file()  # Must not raise
+
+
+class TestBrowseOutputFileInitialDirCases:
+    """Lines 2247, 2253: initial directory selection in _on_browse_output_file."""
+
+    def test_uses_existing_output_path_as_initial(self, tmp_path, win):
+        """Line 2247: when output_model_path exists and is a dir."""
+        win.output_model_path = str(tmp_path)
+        win.input_model_path = ""
+        with patch('src.main_window.QFileDialog.getExistingDirectory',
+                   return_value=str(tmp_path)) as mock_dlg:
+            win._on_browse_output_file()
+
+        call_args = mock_dlg.call_args[0]
+        assert str(tmp_path) in call_args
+
+    def test_falls_back_to_last_browse_dir(self, win):
+        """Line 2253: when no output/input/default paths are set."""
+        win.output_model_path = ""
+        win.input_model_path = ""
+        win.settings_manager.settings['default_output_path'] = ''
+        win.last_browse_directory = '/tmp'
+        with patch('src.main_window.QFileDialog.getExistingDirectory',
+                   return_value="") as mock_dlg:
+            win._on_browse_output_file()
+
+        call_args = mock_dlg.call_args[0]
+        assert '/tmp' in call_args
+
+
+class TestValidateInputFileExceptionPath:
+    """Lines 2391-2394: exception when reading input file header."""
+
+    def test_file_read_exception_returns_false(self, tmp_path, win):
+        f = tmp_path / "model.onnx"
+        f.write_bytes(b"\x08\x00\x00\x00extra")
+
+        import builtins
+        real_open = builtins.open
+        call_count = [0]
+
+        def mock_open(path, *args, **kwargs):
+            call_count[0] += 1
+            if 'rb' in args or kwargs.get('mode', '') == 'rb':
+                raise OSError("read error")
+            return real_open(path, *args, **kwargs)
+
+        with patch('builtins.open', side_effect=mock_open):
+            result = win._validate_input_file(str(f))
+        assert result is False
+
+
+class TestValidateConfigFileDirectoryPath:
+    """Lines 2426-2429: config path that's a directory (not a file)."""
+
+    def test_directory_path_returns_false(self, tmp_path, win):
+        result = win._validate_config_file(str(tmp_path))
+        assert result is False
+
+
+class TestWriteCalibToConfigExceptionPath:
+    """Lines 2649-2650: exception when writing to config file in _write_calib_to_config."""
+
+    def test_write_exception_shows_status_message(self, tmp_path, win):
+        cfg = {"name": "model"}
+        f = tmp_path / "cfg.json"
+        f.write_text(json.dumps(cfg))
+        win.config_file_path = str(f)
+
+        import builtins
+        real_open = builtins.open
+        call_count = [0]
+
+        def mock_open(path, *args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] > 1:
+                raise OSError("disk full")
+            return real_open(path, *args, **kwargs)
+
+        with patch('builtins.open', side_effect=mock_open):
+            win._write_calib_to_config()  # Must not raise
+
+
+class TestUpdateCommandPreviewCLIMode:
+    """Lines 3080, 3086-3123: _update_command_preview in Python mode (saved script) and CLI mode."""
+
+    def test_python_mode_with_saved_script(self, tmp_path, win):
+        """Line 3080: Python mode with saved_python_script_path."""
+        onnx = _make_onnx(tmp_path)
+        script = tmp_path / "compile.py"
+        script.write_text("import dx_com")
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "python"
+        win.saved_python_script_path = str(script)
+        win._update_command_preview()
+        assert str(script) in win.command_preview_field.text()
+
+    def test_cli_mode_builds_dxcom_command(self, tmp_path, win):
+        """Lines 3086-3123: CLI mode builds dxcom command preview."""
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "cli"
+        win._update_command_preview()
+        cmd = win.command_preview_field.text()
+        assert cmd.startswith("dxcom")
+        assert onnx in cmd
+
+    def test_cli_mode_with_config_file(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        cfg = _make_json(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.config_file_path = cfg
+        win.execution_mode = "cli"
+        win._update_command_preview()
+        assert '-c' in win.command_preview_field.text()
+
+    def test_cli_mode_with_gen_log_flag(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "cli"
+        win.gen_log_checkbox.setChecked(True)
+        win._update_command_preview()
+        assert '--gen_log' in win.command_preview_field.text()
+
+    def test_cli_mode_with_node_specs(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "cli"
+        win.compile_input_nodes_field.setText("in_node")
+        win.compile_output_nodes_field.setText("out_node")
+        win._update_command_preview()
+        cmd = win.command_preview_field.text()
+        assert 'in_node' in cmd
+        assert 'out_node' in cmd
+
+
+class TestOnCopyCommand:
+    """Lines 3127-3133: _on_copy_command."""
+
+    def test_copy_valid_command(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "cli"
+        win._update_command_preview()
+        win._on_copy_command()  # Must not raise
+
+    def test_copy_empty_command_does_not_raise(self, win):
+        win.command_preview_field.setText("")
+        win._on_copy_command()  # Must not raise
+
+    def test_copy_error_command_does_not_raise(self, win):
+        win.command_preview_field.setText("Error: something went wrong")
+        win._on_copy_command()  # Must not raise
+
+
+class TestOnGeneratePythonScript:
+    """Lines 3137-3160: _on_generate_python_script."""
+
+    def test_generates_script_dialog(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.python_data_source = "config"
+
+        mock_dlg = MagicMock()
+        mock_dlg.saved_file_path = None
+        mock_dlg.exec.return_value = None
+        with patch('src.main_window.PythonScriptDialog', return_value=mock_dlg):
+            win._on_generate_python_script()
+
+        mock_dlg.exec.assert_called_once()
+
+    def test_saves_script_path_when_dialog_saves(self, tmp_path, win):
+        onnx = _make_onnx(tmp_path)
+        script = tmp_path / "compile.py"
+        script.write_text("")
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.python_data_source = "config"
+
+        mock_dlg = MagicMock()
+        mock_dlg.saved_file_path = str(script)
+        mock_dlg.exec.return_value = None
+        with patch('src.main_window.PythonScriptDialog', return_value=mock_dlg):
+            win._on_generate_python_script()
+
+        assert win.saved_python_script_path == str(script)
+
+    def test_without_input_model_uses_default_name(self, win):
+        win.input_model_path = ""
+        win.output_model_path = ""
+        win.python_data_source = "config"
+
+        mock_dlg = MagicMock()
+        mock_dlg.saved_file_path = None
+        mock_dlg.exec.return_value = None
+        with patch('src.main_window.PythonScriptDialog', return_value=mock_dlg) as mock_cls:
+            win._on_generate_python_script()
+
+        # Default name should be "compile_model.py"
+        call_args = mock_cls.call_args[0]
+        assert "compile_model.py" in call_args[1]
+
+
+# ===========================================================================
+# FINAL REFINEMENT — last remaining uncovered exception handlers and branches
+# ===========================================================================
+
+class TestWriteDefaultLoaderRemainingExceptions:
+    """Lines 946-947, 953-954, 960-961, 967-968: except handlers for more preprocessing fields."""
+
+    def _setup_config(self, tmp_path, win):
+        cfg_file = tmp_path / "model.json"
+        cfg_file.write_text(json.dumps({"default_loader": {}}))
+        win.config_file_path = str(cfg_file)
+        return cfg_file
+
+    def test_transpose_invalid_json_does_not_raise(self, tmp_path, win):
+        """Lines 946-947."""
+        self._setup_config(tmp_path, win)
+        win.transpose_field.setText('bad json here')
+        win._write_default_loader_to_config()
+
+    def test_expand_dim_invalid_json_does_not_raise(self, tmp_path, win):
+        """Lines 953-954."""
+        self._setup_config(tmp_path, win)
+        win.expand_dim_field.setText('bad json')
+        win._write_default_loader_to_config()
+
+    def test_normalize_invalid_json_does_not_raise(self, tmp_path, win):
+        """Lines 960-961."""
+        self._setup_config(tmp_path, win)
+        win.normalize_field.setText('not{valid')
+        win._write_default_loader_to_config()
+
+    def test_mul_invalid_json_does_not_raise(self, tmp_path, win):
+        """Lines 967-968."""
+        self._setup_config(tmp_path, win)
+        win.mul_field.setText('{bad}')
+        win._write_default_loader_to_config()
+
+
+class TestUpdateCommandPreviewRemainingBranches:
+    """Lines 3110, 3122-3123: aggressive_partitioning flag and exception handler."""
+
+    def test_cli_mode_with_aggressive_partitioning(self, tmp_path, win):
+        """Line 3110: aggressive_partitioning flag in CLI command."""
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "cli"
+        win.aggressive_partitioning_checkbox.setChecked(True)
+        win._update_command_preview()
+        assert '--aggressive_partitioning' in win.command_preview_field.text()
+
+    def test_exception_in_preview_sets_error_message(self, tmp_path, win):
+        """Lines 3122-3123: exception handler for command preview."""
+        onnx = _make_onnx(tmp_path)
+        win.input_model_path = onnx
+        win.output_model_path = str(tmp_path)
+        win.execution_mode = "cli"
+        # Make opt_level_combo.currentData() raise to trigger exception handler
+        mock_combo = MagicMock()
+        mock_combo.currentData.side_effect = RuntimeError("combo error")
+        win.opt_level_combo = mock_combo
+        win._update_command_preview()
+        text = win.command_preview_field.text()
+        assert 'Error' in text

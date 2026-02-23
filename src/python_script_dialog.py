@@ -4,8 +4,10 @@ Python Script Editor Dialog.
 Provides a separate window to view and edit generated Python compilation scripts
 with syntax highlighting.
 """
+import os
+import re
 from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QPushButton,
+    QApplication, QDialog, QVBoxLayout, QHBoxLayout, QPushButton,
     QTextEdit, QLabel, QMessageBox, QFileDialog
 )
 from PySide6.QtCore import Qt
@@ -53,8 +55,6 @@ class PythonSyntaxHighlighter(QSyntaxHighlighter):
     
     def highlightBlock(self, text):
         """Apply syntax highlighting to a block of text."""
-        import re
-        
         # Comments (highest priority)
         for match in re.finditer(r'#.*$', text):
             self.setFormat(match.start(), match.end() - match.start(), self.comment_format)
@@ -207,7 +207,6 @@ class PythonScriptDialog(QDialog):
             return  # User cancelled
         
         try:
-            import os
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(self.text_edit.toPlainText())
             
@@ -238,7 +237,6 @@ class PythonScriptDialog(QDialog):
     
     def _on_copy(self):
         """Copy script to clipboard."""
-        from PySide6.QtWidgets import QApplication
         QApplication.clipboard().setText(self.text_edit.toPlainText())
         QMessageBox.information(
             self,

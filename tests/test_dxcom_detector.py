@@ -138,28 +138,6 @@ class TestDXComDetector(unittest.TestCase):
                 # Should fail gracefully
                 self.assertFalse(info.available)
                 self.assertIsNone(info.version)
-    
-    def test_get_user_friendly_status_success(self):
-        """Test user-friendly status message for successful detection."""
-        mock_result = MagicMock()
-        mock_result.stdout = "dxcom version 1.2.3"
-        mock_result.stderr = ""
-        
-        with patch('shutil.which', return_value='/usr/bin/dxcom'):
-            with patch('subprocess.run', return_value=mock_result):
-                status_type, message = self.detector.get_user_friendly_status()
-                
-                self.assertEqual(status_type, 'success')
-                self.assertIn('detected', message.lower())
-                self.assertIn('1.2.3', message)
-    
-    def test_get_user_friendly_status_error(self):
-        """Test user-friendly status message for detection failure."""
-        with patch('shutil.which', return_value=None):
-            status_type, message = self.detector.get_user_friendly_status()
-            
-            self.assertEqual(status_type, 'error')
-            self.assertIn('not', message.lower())
 
 
 class TestConvenienceFunctions(unittest.TestCase):

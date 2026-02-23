@@ -8,7 +8,7 @@ import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.error_dialog import ErrorDialog, show_error_dialog, show_simple_error
+from src.error_dialog import ErrorDialog, show_error_dialog
 from src.error_handler import DXComError, ErrorCategory
 
 

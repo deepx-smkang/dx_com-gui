@@ -5,6 +5,7 @@ This module provides functionality to detect if dxcom is installed,
 verify it's the correct tool, and retrieve version information.
 """
 import subprocess
+import re
 import shutil
 from typing import Optional, Tuple
 from dataclasses import dataclass
@@ -128,8 +129,6 @@ class DXComDetector:
         Returns:
             Version string or None
         """
-        import re
-        
         # Common version patterns
         patterns = [
             r'version\s+(\d+\.\d+\.\d+)',
@@ -144,24 +143,6 @@ class DXComDetector:
                 return match.group(1)
         
         return None
-    
-    def get_user_friendly_status(self) -> Tuple[str, str]:
-        """
-        Get user-friendly status message for display.
-        
-        Returns:
-            Tuple of (status_type, message) where status_type is
-            'success', 'warning', or 'error'
-        """
-        info = self.detect()
-        
-        if info.is_valid():
-            if info.version:
-                return ('success', f'dxcom detected: {info.version} at {info.path}')
-            else:
-                return ('success', f'dxcom detected at {info.path}')
-        else:
-            return ('error', info.error_message or 'dxcom not available')
     
     def clear_cache(self):
         """Clear cached detection results."""

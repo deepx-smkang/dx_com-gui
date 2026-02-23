@@ -6,7 +6,7 @@ suggestions, and options to view technical details.
 """
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel,
-    QPushButton, QTextEdit, QMessageBox
+    QPushButton, QTextEdit, QMessageBox, QApplication
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QIcon
@@ -117,8 +117,6 @@ class ErrorDialog(QDialog):
     
     def _on_copy_error(self):
         """Copy full error details to clipboard."""
-        from PySide6.QtWidgets import QApplication
-        
         error_text = format_error_for_display(self.error, include_technical=True)
         clipboard = QApplication.clipboard()
         clipboard.setText(error_text)
@@ -128,7 +126,7 @@ class ErrorDialog(QDialog):
             self,
             "Copied",
             "Error details copied to clipboard.",
-            QMessageBox.Ok
+            QMessageBox.StandardButton.Ok
         )
 
 
@@ -145,15 +143,3 @@ def show_error_dialog(error: DXComError, parent=None) -> int:
     """
     dialog = ErrorDialog(error, parent)
     return dialog.exec()
-
-
-def show_simple_error(title: str, message: str, parent=None):
-    """
-    Show a simple error message box.
-    
-    Args:
-        title: Dialog title
-        message: Error message
-        parent: Parent widget
-    """
-    QMessageBox.critical(parent, title, message, QMessageBox.Ok)
