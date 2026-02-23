@@ -20,9 +20,16 @@ Built with PySide6 (Qt for Python), it provides an intuitive interface for deep 
 ## 📋 Requirements
 
 ### 🖥️ System Requirements
-- **Operating System**: Linux (Ubuntu 18.04+)
-- **Python**: 3.8 or higher
-- **Display**: X11 or Wayland display server
+
+| Component | Requirement |
+|---|---|
+| **CPU** | amd64 (x86\_64) — ⚠️ aarch64 (arm64) is **NOT** supported |
+| **RAM** | ≥ 16 GB |
+| **Storage** | ≥ 8 GB available disk space |
+| **OS** | Ubuntu 20.04 / 22.04 / 24.04 (x64) — ⚠️ Ubuntu 18.04 is **NOT** supported |
+| **LDD** | ≥ 2.28 |
+| **Python** | 3.8 or higher |
+| **Display** | X11 or Wayland display server |
 
 ### 📦 Dependencies
 - **PySide6** ≥ 6.4.0 (Qt for Python)
