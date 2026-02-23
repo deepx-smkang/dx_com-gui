@@ -1,7 +1,7 @@
 # 🧠 DXCom GUI - ONNX to DXNN Model Compiler
 
 A desktop application for compiling ONNX models to DXNN format using the DXCom compiler.  
-Built with PySide6 (Qt for Python), it provides an intuitive interface for deep neural network model conversion.
+Built with PySide6 (Qt for Python), it provides an intuitive interface for DXNN conversion.
 
 ## ✨ Features
 
