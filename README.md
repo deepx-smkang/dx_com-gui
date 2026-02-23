@@ -17,11 +17,13 @@ Built with PySide6 (Qt for Python), it provides an intuitive interface for DXNN 
 - 🎨 **Theme Support**: Light and dark UI modes
 - 💾 **Settings Persistence**: Configurable default paths and preferences
 
-## 📸 Screenshot
+## 📸 Screenshots
 
-![DXCom GUI - Light Mode](docs/source/resources/screenshot_light_mode.png)
+| Light Mode | Dark Mode |
+|:---:|:---:|
+| ![Light Mode](docs/source/resources/screenshot_light_mode.png) | ![Dark Mode](docs/source/resources/screenshot_dark_mode.png) |
 
-## �📋 Requirements
+## 📋 Requirements
 
 ### 🖥️ System Requirements
 
