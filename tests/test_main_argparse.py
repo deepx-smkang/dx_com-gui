@@ -23,20 +23,8 @@ class TestParseArguments(unittest.TestCase):
     def test_no_args_returns_defaults(self):
         """All arguments are optional; defaults should be None."""
         args = self._parse([])
-        self.assertIsNone(args.input)
-        self.assertIsNone(args.output)
         self.assertIsNone(args.theme)
         self.assertIsNone(args.dxcom_path)
-
-    def test_input_flag(self):
-        """--input sets args.input."""
-        args = self._parse(['--input', 'model.onnx'])
-        self.assertEqual(args.input, 'model.onnx')
-
-    def test_output_flag(self):
-        """--output sets args.output."""
-        args = self._parse(['--output', '/tmp/out.dxnn'])
-        self.assertEqual(args.output, '/tmp/out.dxnn')
 
     def test_theme_light(self):
         """--theme light is accepted."""
@@ -61,13 +49,9 @@ class TestParseArguments(unittest.TestCase):
     def test_all_flags_together(self):
         """All flags can be combined."""
         args = self._parse([
-            '--input', 'a.onnx',
-            '--output', 'b.dxnn',
             '--theme', 'dark',
             '--dxcom-path', '/opt/dxcom',
         ])
-        self.assertEqual(args.input, 'a.onnx')
-        self.assertEqual(args.output, 'b.dxnn')
         self.assertEqual(args.theme, 'dark')
         self.assertEqual(args.dxcom_path, '/opt/dxcom')
 

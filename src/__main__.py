@@ -23,18 +23,6 @@ def parse_arguments():
     )
     
     parser.add_argument(
-        '--input',
-        metavar='FILE',
-        help='Input ONNX model file path'
-    )
-    
-    parser.add_argument(
-        '--output',
-        metavar='FILE',
-        help='Output DXNN file path'
-    )
-    
-    parser.add_argument(
         '--theme',
         choices=['light', 'dark'],
         default=None,
@@ -97,10 +85,6 @@ def main():
     window = MainWindow()
     
     # Apply command line arguments
-    if args.input:
-        window.set_input_path(args.input)
-    if args.output:
-        window.set_output_path(args.output)
     if args.theme:
         window.apply_theme(args.theme)
     if args.dxcom_path:

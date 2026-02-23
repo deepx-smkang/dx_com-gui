@@ -10,14 +10,11 @@ Usage:
     python main.py [options]
     
 Command line options:
-    --input FILE        Path to input ONNX model
-    --output FILE       Path to output DXNN file
     --theme THEME       UI theme (light/dark)
     --dxcom-path PATH   Custom DXCom compiler path
-    --debug             Enable debug logging
 
 Example:
-    python main.py --input model.onnx --theme dark
+    python main.py --theme dark
 """
 import sys
 import argparse
@@ -38,18 +35,6 @@ def parse_arguments():
     )
     
     parser.add_argument(
-        '--input',
-        metavar='FILE',
-        help='Input ONNX model file path'
-    )
-    
-    parser.add_argument(
-        '--output',
-        metavar='FILE',
-        help='Output DXNN file path'
-    )
-    
-    parser.add_argument(
         '--theme',
         choices=['light', 'dark'],
         default='light',
@@ -60,12 +45,6 @@ def parse_arguments():
         '--dxcom-path',
         metavar='PATH',
         help='Custom DXCom compiler path'
-    )
-    
-    parser.add_argument(
-        '--debug',
-        action='store_true',
-        help='Enable debug logging'
     )
     
     return parser.parse_args()
@@ -122,16 +101,10 @@ def main():
     window = MainWindow()
     
     # Apply command line arguments
-    if args.input:
-        window.set_input_path(args.input)
-    if args.output:
-        window.set_output_path(args.output)
     if args.theme:
         window.apply_theme(args.theme)
     if args.dxcom_path:
         window.set_dxcom_path(args.dxcom_path)
-    if args.debug:
-        window.enable_debug_logging()
     
     window.show()
     

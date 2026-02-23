@@ -123,8 +123,6 @@ python main.py
 ```
 dxcom-gui [OPTIONS]
 
-  --input FILE        Input ONNX model file path (pre-loads on launch)
-  --output FILE       Output file path (pre-fills the output directory)
   --theme THEME       UI theme: light or dark  [default: light]
   --dxcom-path PATH   Custom path to the DXCom compiler executable
   -h, --help          Show this help message and exit
@@ -132,8 +130,8 @@ dxcom-gui [OPTIONS]
 
 **Examples:**
 ```bash
-# Open with a pre-loaded model
-dxcom-gui --input model.onnx
+# Use dark theme
+dxcom-gui --theme dark
 
 # Use dark theme with a custom compiler path
 dxcom-gui --theme dark --dxcom-path /path/to/venv/bin/dxcom

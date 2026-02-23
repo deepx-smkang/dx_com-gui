@@ -6,9 +6,6 @@
 # If installed via pip
 dxcom-gui
 
-# With a specific model pre-loaded
-dxcom-gui --input /path/to/model.onnx
-
 # With a custom compiler path
 dxcom-gui --dxcom-path /path/to/dxcom
 
